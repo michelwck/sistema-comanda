@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Client {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String?
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  tabs      Tab[]
+}
+
+model Product {
+  id        Int      @id @default(autoincrement())
+  name      String
+  price     Decimal  @db.Decimal(10, 2)
+  category  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  tabItems  TabItem[]
+}
+
+model Tab {
+  id        Int      @id @default(autoincrement())
+  clientId  Int?
+  customer  String   // Nome do cliente (pode ser diferente do cadastrado)
+  status    String   @default("open") // open, paid, cancelled
+  total     Decimal  @db.Decimal(10, 2) @default(0)
+  openedAt  DateTime @default(now())
+  closedAt  DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  client    Client?  @relation(fields: [clientId], references: [id])
+  items     TabItem[]
+  
+  @@index([status])
+  @@index([openedAt])
+}
+
+model TabItem {
+  id        Int      @id @default(autoincrement())
+  tabId     Int
+  productId Int
+  name      String   // Nome do produto no momento da venda
+  price     Decimal  @db.Decimal(10, 2)
+  quantity  Int      @default(1)
+  addedAt   DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  tab       Tab      @relation(fields: [tabId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id])
+  
+  @@index([tabId])
+}

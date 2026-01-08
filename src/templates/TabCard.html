@@ -1,0 +1,27 @@
+<div class="card tab-card" data-id="{{id}}" style="{{selectedStyle}} transition: all 0.2s ease; cursor: pointer;">
+    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+        <h3 style="font-size: 1.1rem; margin: 0; flex: 1;">{{customer}}</h3>
+        <span
+            style="font-size: 0.75rem; color: var(--color-text-muted); align-self: flex-end; white-space: nowrap; margin-left: 0.5rem; margin-top: auto;">{{openedAt}}</span>
+    </div>
+    <div
+        style="margin-top: 1rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-weight: 600; font-size: 1.2rem; color: var(--color-primary);">
+            R$ {{totalFormatted}}
+        </span>
+        <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-primary btn-sm" style="padding: 0.4rem 0.8rem; font-size: 0.9rem;">
+                Ver
+            </button>
+            <button class="delete-tab-btn btn-icon" data-id="{{id}}"
+                style="padding: 0.4rem; background: rgba(239, 68, 68, 0.1); color: var(--color-danger); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 6px; cursor: pointer;"
+                title="Excluir">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>
