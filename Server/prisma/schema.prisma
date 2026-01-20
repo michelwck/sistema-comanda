@@ -19,6 +19,7 @@ model Client {
   updatedAt DateTime @updatedAt
   
   tabs      Tab[]
+  transactions ClientTransaction[]
 }
 
 model Product {
@@ -33,18 +34,20 @@ model Product {
 }
 
 model Tab {
-  id        Int      @id @default(autoincrement())
-  clientId  Int?
-  customer  String   // Nome do cliente (pode ser diferente do cadastrado)
-  status    String   @default("open") // open, paid, cancelled
-  total     Decimal  @db.Decimal(10, 2) @default(0)
-  openedAt  DateTime @default(now())
-  closedAt  DateTime?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            Int      @id @default(autoincrement())
+  clientId      Int?
+  customer      String   // Nome do cliente (pode ser diferente do cadastrado)
+  status        String   @default("open") // open, paid, cancelled, closed (historically used closed)
+  paymentMethod String?  // money, credit, debit, fiado
+  total         Decimal  @db.Decimal(10, 2) @default(0)
+  openedAt      DateTime @default(now())
+  closedAt      DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
   
   client    Client?  @relation(fields: [clientId], references: [id])
   items     TabItem[]
+  transactions ClientTransaction[]
   
   @@index([status])
   @@index([openedAt])
@@ -65,4 +68,32 @@ model TabItem {
   product   Product  @relation(fields: [productId], references: [id])
   
   @@index([tabId])
+}
+
+model ClientTransaction {
+  id          Int      @id @default(autoincrement())
+  clientId    Int
+  tabId       Int?
+  amount      Decimal  @db.Decimal(10, 2) // Positive = Debt (Fiado), Negative = Payment
+  type        String   // 'FIADO', 'PAYMENT', 'MANUAL_DEBT', 'MANUAL_CREDIT'
+  description String?
+  createdAt   DateTime @default(now())
+  
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  tab         Tab?     @relation(fields: [tabId], references: [id])
+  
+  @@index([clientId])
+  @@index([type])
+}
+
+model User {
+  id            Int      @id @default(autoincrement())
+  email         String   @unique
+  name          String
+  picture       String?
+  role          String   @default("operator") // "admin", "operator", "viewer"
+  googleId      String?  @unique
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }

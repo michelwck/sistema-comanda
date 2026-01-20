@@ -7,6 +7,7 @@ export function ClientList(props = {}) {
         <td style="padding: 1rem; color: var(--color-text-muted);">${client.phone || '-'}</td>
         <td style="padding: 1rem; text-align: right;">
             <button class="btn btn-secondary edit-client-btn" data-id="${client.id}" style="padding: 0.25rem 0.75rem; font-size: 0.8rem;">Editar</button>
+            <button class="btn delete-client-btn" data-id="${client.id}" style="padding: 0.25rem 0.75rem; font-size: 0.8rem; margin-left: 0.5rem; background: rgba(239, 68, 68, 0.1); color: var(--color-danger); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: var(--radius-sm); cursor: pointer;">Excluir</button>
         </td>
     </tr>
   `).join('');

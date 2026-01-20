@@ -5,8 +5,18 @@ import { Header } from './Header';
  * @param {Object} tab - The tab object to display
  * @returns {string} HTML string
  */
-export function TabDetail(tab, selectedIndex = -1) {
-  const isReadOnly = tab.status !== 'open';
+/**
+ * Renders the Tab Detail View
+ * @param {Object} props - The props object
+ * @returns {string} HTML string
+ */
+export function TabDetail(props = {}) {
+  const { tab, itemIndex: selectedIndex = -1, quickAddSearch, quickAddSelectedIndex, showDropdown, readOnly } = props;
+
+  // Guard against null tab (though main.js checks find, it might return undefined if not found)
+  if (!tab) return '<div class="container text-center">Comanda não encontrada</div>';
+
+  const isReadOnly = readOnly || tab.status !== 'open';
   const reversedItems = tab.items ? [...tab.items] : [];
 
   const itemsHtml = reversedItems.length > 0 ? reversedItems.map((item, displayIndex) => {

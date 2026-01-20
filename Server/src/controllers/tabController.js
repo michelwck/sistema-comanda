@@ -106,13 +106,30 @@ export const updateTab = async (req, res, next) => {
         }
         if (clientId !== undefined) updateData.clientId = clientId ? parseInt(clientId) : null;
 
-        const tab = await prisma.tab.update({
-            where: { id: parseInt(id) },
-            data: updateData,
-            include: {
-                items: true,
-                client: true
+        const tab = await prisma.$transaction(async (tx) => {
+            const updatedTab = await tx.tab.update({
+                where: { id: parseInt(id) },
+                data: updateData,
+                include: {
+                    items: true,
+                    client: true
+                }
+            });
+
+            // Se for fechamento como Fiado, criar transação
+            if (status === 'closed' && req.body.paymentMethod === 'fiado' && clientId) {
+                await tx.clientTransaction.create({
+                    data: {
+                        clientId: parseInt(clientId),
+                        tabId: parseInt(id),
+                        amount: updatedTab.total, // Debt is positive
+                        type: 'FIADO',
+                        description: `Fiado - ${updatedTab.customer}`
+                    }
+                });
             }
+
+            return updatedTab;
         });
 
         // Emitir evento Socket.io

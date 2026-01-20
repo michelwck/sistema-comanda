@@ -1,12 +1,18 @@
+import { getToken, clearToken } from './auth.js';
+
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 // Função auxiliar para fazer requisições
 async function fetchAPI(endpoint, options = {}) {
     const url = `${API_URL}${endpoint}`;
 
+    // Get auth token
+    const token = getToken();
+
     const config = {
         headers: {
             'Content-Type': 'application/json',
+            ...(token && { 'Authorization': `Bearer ${token}` }),
             ...options.headers
         },
         ...options
@@ -14,6 +20,13 @@ async function fetchAPI(endpoint, options = {}) {
 
     try {
         const response = await fetch(url, config);
+
+        // Handle 401 Unauthorized - redirect to login
+        if (response.status === 401) {
+            clearToken();
+            window.location.href = '/';
+            throw new Error('Não autenticado');
+        }
 
         if (!response.ok) {
             const error = await response.json().catch(() => ({ error: 'Erro desconhecido' }));
@@ -158,6 +171,45 @@ export async function updateClient(id, data) {
 
 export async function deleteClient(id) {
     return fetchAPI(`/clients/${id}`, {
+        method: 'DELETE'
+    });
+}
+
+export async function getClientTransactions(clientId) {
+    return fetchAPI(`/clients/${clientId}/transactions`);
+}
+
+export async function createClientTransaction(clientId, data) {
+    return fetchAPI(`/clients/${clientId}/transactions`, {
+        method: 'POST',
+        body: JSON.stringify(data)
+    });
+}
+
+// ============================================
+// USERS (Usuários do Sistema)
+// ============================================
+
+export async function getUsers() {
+    return fetchAPI('/users');
+}
+
+export async function createUser(data) {
+    return fetchAPI('/users', {
+        method: 'POST',
+        body: JSON.stringify(data)
+    });
+}
+
+export async function updateUser(id, data) {
+    return fetchAPI(`/users/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data)
+    });
+}
+
+export async function deleteUser(id) {
+    return fetchAPI(`/users/${id}`, {
         method: 'DELETE'
     });
 }
