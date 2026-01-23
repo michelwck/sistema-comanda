@@ -24,7 +24,8 @@ const io = new Server(httpServer, {
             process.env.FRONTEND_URL,
             'http://localhost:5173',
             'http://127.0.0.1:5173',
-            'http://69.169.109.119:5173'
+            'http://69.169.109.119:5173',
+            'https://embassy-empirical-asset-champagne.trycloudflare.com'
         ].filter(Boolean),
         methods: ['GET', 'POST', 'PUT', 'DELETE'],
         credentials: true
