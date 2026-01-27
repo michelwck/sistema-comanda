@@ -62,7 +62,7 @@ export const fetchCurrentUser = async () => {
     // }
 
     try {
-        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+        const API_URL = import.meta.env.VITE_API_URL || '/api';
         const BASE_URL = API_URL.replace(/\/api$/, '');
 
         const response = await fetch(`${BASE_URL}/auth/me`, {
