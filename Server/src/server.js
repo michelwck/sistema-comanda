@@ -19,17 +19,22 @@ dotenv.config();
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
-    cors: {
-        origin: [
+    origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+
+        const allowedOrigins = [
             process.env.FRONTEND_URL,
             'http://localhost:5173',
-            'http://127.0.0.1:5173',
-            'http://69.169.109.119:5173',
-            'https://embassy-empirical-asset-champagne.trycloudflare.com'
-        ].filter(Boolean),
-        methods: ['GET', 'POST', 'PUT', 'DELETE'],
-        credentials: true
-    }
+            'http://127.0.0.1:5173'
+        ];
+
+        if (allowedOrigins.includes(origin) || origin.endsWith('.trycloudflare.com')) {
+            return callback(null, true);
+        }
+
+        return callback(new Error('Bloqueado pelo CORS'), false);
+    },
 });
 
 // Middleware
