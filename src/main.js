@@ -176,15 +176,16 @@ function attachGlobalEvents() {
             toggleBtn.parentNode.replaceChild(newBtn, toggleBtn);
 
             newBtn.addEventListener('click', () => {
-                state.isSidebarCollapsed = !state.isSidebarCollapsed;
-                localStorage.setItem('sidebar_collapsed', state.isSidebarCollapsed);
-
-                // Direct DOM manipulation for smooth transition
                 const sidebar = document.querySelector('#main-sidebar');
-                if (sidebar) {
-                    sidebar.classList.toggle('collapsed', state.isSidebarCollapsed);
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.toggle('mobile-open');
+                } else {
+                    state.isSidebarCollapsed = !state.isSidebarCollapsed;
+                    localStorage.setItem('sidebar_collapsed', state.isSidebarCollapsed);
+                    if (sidebar) {
+                        sidebar.classList.toggle('collapsed', state.isSidebarCollapsed);
+                    }
                 }
-                // render(); // Removed to prevent DOM thrashing
             });
         }
     }
@@ -204,6 +205,10 @@ function attachGlobalEvents() {
                 state.fiadoSelectedClientId = null;
                 state.fiadoTransactions = null;
                 if (view === 'history') fetchHistory(state, render);
+                if (window.innerWidth <= 768) {
+                    const sidebar = document.querySelector('#main-sidebar');
+                    if (sidebar) sidebar.classList.remove('mobile-open');
+                }
                 render();
             }
         });

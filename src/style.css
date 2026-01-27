@@ -424,9 +424,56 @@ a {
 }
 
 @media (max-width: 768px) {
+  .app-container {
+    flex-direction: column;
+  }
+
   .sidebar {
-    display: none;
-    /* For now, hide on mobile or implement hamburger menu later */
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    z-index: 1000;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+    width: 250px !important;
+    display: flex;
+    /* Ensure it's flex, overriding potential issues */
+  }
+
+  .sidebar.mobile-open {
+    transform: translateX(0);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+  }
+
+  .sidebar-toggle {
+    display: flex !important;
+    /* Ensure toggle is visible */
+    right: -40px;
+    /* Position it outside the sidebar so it's visible when closed */
+    top: 15px;
+    background: var(--color-primary);
+    color: white;
+    border-radius: 0 8px 8px 0;
+    width: 40px;
+    height: 40px;
+  }
+
+  /* When sidebar is open, move toggle back in or keep it? 
+     Let's keep it simple: The existing toggle inside might be hidden if sidebar is transformed.
+     Actually, let's create a mobile toggle trigger available on the main screen if needed, 
+     BUT since the sidebar is hidden, we need a button on the main screen to open it.
+  */
+
+  .container {
+    padding: 1rem 1rem;
+    /* Reduce side padding, ensure top padding */
+    padding-top: 4rem;
+    /* Extra top padding for mobile to clear status bars/notches */
+  }
+
+  #back-btn {
+    margin-top: 1rem;
   }
 }
 
