@@ -285,7 +285,16 @@ export function attachDetailEvents(state, render) {
                 // Add hover effect via JS since we're using inline styles heavily and need to track selection state
                 item.addEventListener('mouseover', () => {
                     state.quickAddSelectedIndex = parseInt(item.dataset.index);
-                    renderDropdown(); // Re-render to update selection style
+                    // Update styles directly without re-rendering to preserve click events
+                    document.querySelectorAll('.search-result-item').forEach((row, idx) => {
+                        if (idx === state.quickAddSelectedIndex) {
+                            row.classList.add('selected');
+                            row.style.background = 'rgba(255,255,255,0.05)';
+                        } else {
+                            row.classList.remove('selected');
+                            row.style.background = '';
+                        }
+                    });
                 });
             });
         };
