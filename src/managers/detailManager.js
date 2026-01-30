@@ -300,6 +300,7 @@ export function attachDetailEvents(state, render) {
         };
 
         const selectProduct = (product) => {
+            state.selectedProduct = product;
             state.quickAddSearch = '';
             dropdown.classList.add('hidden');
 
