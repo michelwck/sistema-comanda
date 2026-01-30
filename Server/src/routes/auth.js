@@ -8,6 +8,8 @@ const router = express.Router();
 // Initiate Google OAuth
 router.get('/google', passport.authenticate('google', {
     scope: ['profile', 'email'],
+    prompt: 'select_account', // Force account selection dialog
+    accessType: 'offline', // Allow refresh tokens
     session: false,
 }));
 
