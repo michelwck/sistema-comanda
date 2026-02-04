@@ -10,6 +10,7 @@ import productRoutes from './routes/products.js';
 import clientRoutes from './routes/clients.js';
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/users.js';
+import categoryRoutes from './routes/categories.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { authMiddleware } from './middleware/auth.js';
 import './config/passport.js'; // Initialize Passport config
@@ -53,6 +54,7 @@ app.use('/auth', authRoutes);
 app.use('/api/tabs', authMiddleware, tabRoutes);
 app.use('/api/products', authMiddleware, productRoutes);
 app.use('/api/clients', authMiddleware, clientRoutes);
+app.use('/api/categories', authMiddleware, categoryRoutes);
 app.use('/api/users', userRoutes); // Already has auth middleware inside
 
 // Health check

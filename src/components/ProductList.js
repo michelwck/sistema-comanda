@@ -25,13 +25,21 @@ export function ProductList(props = {}) {
             <table style="width: 100%; border-collapse: collapse; text-align: left;">
                 <thead>
                     <tr style="background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.05);">
-                        <th style="padding: 1rem; font-weight: 600; color: var(--color-text-muted);">Nome</th>
-                        <th style="padding: 1rem; font-weight: 600; color: var(--color-text-muted);">Categoria</th>
+                        <th style="padding: 1rem; font-weight: 600; color: var(--color-text-muted);">
+                            <div>Nome</div>
+                            <input type="text" id="product-filter-name" placeholder="Buscar..." style="width: 100%; margin-top: 0.5rem; padding: 0.25rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white;">
+                        </th>
+                        <th style="padding: 1rem; font-weight: 600; color: var(--color-text-muted);">
+                            <div>Categoria</div>
+                            <select id="product-filter-category" style="width: 100%; margin-top: 0.5rem; padding: 0.25rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white;">
+                                <option value="">Todas</option>
+                            </select>
+                        </th>
                         <th style="padding: 1rem; font-weight: 600; color: var(--color-text-muted);">Preço</th>
                         <th style="padding: 1rem; text-align: right;">Ações</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="product-list-body">
                     ${rows}
                 </tbody>
             </table>

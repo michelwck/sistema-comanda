@@ -7,6 +7,7 @@ import { ProductList } from './components/ProductList'
 import { FiadoControl } from './components/FiadoControl'
 import { HistoryList } from './components/HistoryList'
 import { UserList } from './components/UserList'
+import { CategoryList } from './components/CategoryList'
 import { Login } from './components/Login'
 import * as api from './services/api'
 import { isAuthenticated, logout, fetchCurrentUser } from './services/auth'
@@ -17,6 +18,7 @@ import { attachFiadoEvents, attachFiadoDetailEvents } from './managers/fiadoMana
 import { fetchHistory, attachHistoryEvents } from './managers/historyManager.js'
 import { attachProductEvents, attachClientEvents } from './managers/adminManager.js'
 import { attachUserEvents } from './managers/userManager.js'
+import { attachCategoryEvents } from './managers/categoryManager.js'
 
 const app = document.querySelector('#app');
 
@@ -46,6 +48,7 @@ let state = {
         clientId: ''
     },
     users: [],
+    categories: [],
     isSidebarCollapsed: localStorage.getItem('sidebar_collapsed') === 'true'
 };
 
@@ -120,6 +123,8 @@ function render() {
             });
         } else if (state.view === 'users') {
             contentHtml = UserList({ users: state.users });
+        } else if (state.view === 'categories') {
+            contentHtml = CategoryList({ categories: state.categories });
         }
     } catch (error) {
         console.error('Render Error:', error);
@@ -256,6 +261,8 @@ function attachEvents() {
         attachHistoryEvents(state, render);
     } else if (state.view === 'users') {
         attachUserEvents(state, render);
+    } else if (state.view === 'categories') {
+        attachCategoryEvents(state, render);
     }
 }
 
@@ -536,15 +543,17 @@ async function initApp() {
         state.currentUser = user;
 
         // Fetch Initial Data
-        const [tabs, products, clients] = await Promise.all([
+        const [tabs, products, clients, categories] = await Promise.all([
             api.getTabs({ status: 'open' }),
             api.getProducts(),
-            api.getClients()
+            api.getClients(),
+            api.getCategories()
         ]);
 
         state.tabs = tabs;
         state.products = products;
         state.clients = clients;
+        state.categories = categories;
 
         // Fetch Users if Admin
         if (state.currentUser && state.currentUser.role === 'admin') {

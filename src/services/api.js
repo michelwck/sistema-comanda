@@ -213,3 +213,31 @@ export async function deleteUser(id) {
         method: 'DELETE'
     });
 }
+
+// ============================================
+// CATEGORIES (Categorias de Produtos)
+// ============================================
+
+export async function getCategories() {
+    return fetchAPI('/categories');
+}
+
+export async function createCategory(data) {
+    return fetchAPI('/categories', {
+        method: 'POST',
+        body: JSON.stringify(data)
+    });
+}
+
+export async function updateCategory(id, data) {
+    return fetchAPI(`/categories/${id}`, {
+        method: 'PUT',
+        body: JSON.stringify(data)
+    });
+}
+
+export async function deleteCategory(id) {
+    return fetchAPI(`/categories/${id}`, {
+        method: 'DELETE'
+    });
+}

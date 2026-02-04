@@ -16,9 +16,12 @@ export function ClientList(props = {}) {
     <main class="container">
       <div style="margin-bottom: var(--spacing-md); display: flex; justify-content: space-between; align-items: center;">
         <h2>Clientes</h2>
-        <button id="new-client-btn" class="btn btn-primary">
-          + Novo Cliente
-        </button>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+            <input type="text" id="client-filter-name" placeholder="Buscar cliente..." style="padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: white; min-width: 250px;">
+            <button id="new-client-btn" class="btn btn-primary">
+            + Novo Cliente
+            </button>
+        </div>
       </div>
       
       <div class="card" style="padding: 0; overflow: hidden;">
@@ -31,7 +34,7 @@ export function ClientList(props = {}) {
                     <th style="padding: 1rem; text-align: right;">Ações</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="client-list-body">
                 ${rows}
             </tbody>
         </table>
