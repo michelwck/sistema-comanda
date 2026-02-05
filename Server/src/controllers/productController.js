@@ -18,7 +18,8 @@ export const getAllProducts = async (req, res, next) => {
 
         const products = await prisma.product.findMany({
             where,
-            orderBy: { name: 'asc' }
+            orderBy: { name: 'asc' },
+            include: { category: true }
         });
 
         res.json(products);
@@ -61,8 +62,15 @@ export const createProduct = async (req, res, next) => {
             data: {
                 name,
                 price: parseFloat(price),
-                category
-            }
+                // Se category (string) for enviado, precisamos buscar ou criar a categoria
+                // Mas o frontend agora deve enviar categoryId se selecionado, ou o nome se novo?
+                // Vamos assumir que o frontend envia categoryId se for select, ou o nome se for texto (legacy)
+                // O schema pede categoryId Int.
+                // Ajuste rápido: Se o frontend envia string em 'category', precisamos converter
+                // Mas vamos checar se é número
+                categoryId: isNaN(parseInt(category)) ? undefined : parseInt(category)
+            },
+            include: { category: true }
         });
 
         // Emitir evento Socket.io
@@ -84,11 +92,15 @@ export const updateProduct = async (req, res, next) => {
         const updateData = {};
         if (name !== undefined) updateData.name = name;
         if (price !== undefined) updateData.price = parseFloat(price);
-        if (category !== undefined) updateData.category = category;
+        if (category !== undefined) {
+             const catId = parseInt(category);
+             if (!isNaN(catId)) updateData.categoryId = catId;
+        }
 
         const product = await prisma.product.update({
             where: { id: parseInt(id) },
-            data: updateData
+            data: updateData,
+            include: { category: true }
         });
 
         // Emitir evento Socket.io

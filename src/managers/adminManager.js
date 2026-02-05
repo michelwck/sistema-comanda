@@ -10,12 +10,13 @@ export function attachProductEvents(state, render) {
     const tbody = document.querySelector('#product-list-body');
 
     // Populate categories
-    if (filterCategorySelect) {
-        const categories = [...new Set(state.products.map(p => p.category))].sort();
-        categories.forEach(cat => {
+    // Populate categories
+    if (filterCategorySelect && state.categories) {
+        filterCategorySelect.innerHTML = '<option value="">Todas</option>';
+        state.categories.forEach(cat => {
             const option = document.createElement('option');
-            option.value = cat;
-            option.textContent = cat;
+            option.value = cat.id;
+            option.textContent = cat.name;
             filterCategorySelect.appendChild(option);
         });
     }
@@ -41,7 +42,7 @@ export function attachProductEvents(state, render) {
 
         const filtered = state.products.filter(p => {
             const matchesName = p.name.toLowerCase().includes(nameTerm);
-            const matchesCategory = categoryTerm ? p.category === categoryTerm : true;
+            const matchesCategory = categoryTerm ? (p.categoryId === parseInt(categoryTerm)) : true;
             return matchesName && matchesCategory;
         });
 
@@ -60,7 +61,7 @@ export function attachProductEvents(state, render) {
                     document.querySelector('#product-modal-title').textContent = 'Editar Produto';
                     document.querySelector('#product-id').value = product.id;
                     document.querySelector('#product-name').value = product.name;
-                    document.querySelector('#product-category').value = product.category;
+                    document.querySelector('#product-category').value = product.categoryId || '';
                     document.querySelector('#product-price').value = product.price;
                     modal.classList.remove('hidden');
                 }
