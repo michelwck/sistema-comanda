@@ -19,6 +19,7 @@ import { fetchHistory, attachHistoryEvents } from './managers/historyManager.js'
 import { attachProductEvents, attachClientEvents } from './managers/adminManager.js'
 import { attachUserEvents } from './managers/userManager.js'
 import { attachCategoryEvents } from './managers/categoryManager.js'
+import socketService from './services/socket.js'
 
 const app = document.querySelector('#app');
 
@@ -516,6 +517,75 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+// Setup Socket Listeners
+function setupSocketListeners() {
+    // 1. Tab Created
+    socketService.on('tab:created', (newTab) => {
+        // Prevent duplicate (if this client created it, it might already be in state)
+        if (!state.tabs.find(t => t.id === newTab.id)) {
+            state.tabs.unshift(newTab);
+
+            if (state.view === 'dashboard') {
+                render();
+            }
+        }
+    });
+
+    // 2. Tab Updated
+    socketService.on('tab:updated', (updatedTab) => {
+        const index = state.tabs.findIndex(t => t.id === updatedTab.id);
+        if (index > -1) {
+            state.tabs[index] = updatedTab;
+
+            if (state.view === 'dashboard') {
+                render();
+            } else if (state.view === 'detail' && state.selectedTabId === updatedTab.id) {
+                // If viewing this tab, update it
+                render();
+            }
+        } else if (updatedTab.status === 'open') {
+            // If we don't have it (maybe it was just re-opened?), add it
+            state.tabs.unshift(updatedTab);
+            if (state.view === 'dashboard') render();
+        }
+    });
+
+    // 3. Tab Deleted
+    socketService.on('tab:deleted', ({ id }) => {
+        state.tabs = state.tabs.filter(t => t.id !== id);
+
+        if (state.view === 'dashboard') {
+            render();
+        } else if (state.view === 'detail' && state.selectedTabId === id) {
+            alert('Esta comanda foi excluída por outro usuário.');
+            state.view = 'dashboard';
+            state.selectedTabId = null;
+            render();
+        }
+    });
+
+    // 4. Item Added/Updated/Deleted
+    const handleItemUpdate = ({ tabId, tab }) => {
+        // Update local state
+        const index = state.tabs.findIndex(t => t.id === tabId);
+        if (index > -1) {
+            state.tabs[index] = tab; // backend sends the full updated tab with new total
+
+            // If viewing this tab, re-render to show new item/price
+            if (state.view === 'detail' && state.selectedTabId === tabId) {
+                render();
+            } else if (state.view === 'dashboard') {
+                // Update dashboard to show new total if needed
+                render();
+            }
+        }
+    };
+
+    socketService.on('tab:item:added', handleItemUpdate);
+    socketService.on('tab:item:updated', handleItemUpdate);
+    socketService.on('tab:item:deleted', handleItemUpdate);
+}
+
 // Attach Login Events
 function attachLoginEvents() {
     const loginBtn = document.querySelector('#google-login-btn');
@@ -537,6 +607,10 @@ async function initApp() {
         }
 
         state.isAuthenticated = true;
+
+        // Initialize Socket
+        socketService.connect();
+        setupSocketListeners();
 
         // Fetch current user
         const user = await fetchCurrentUser();
