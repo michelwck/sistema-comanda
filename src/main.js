@@ -197,476 +197,477 @@ function attachGlobalEvents() {
                 }
             });
         }
-
-        // Mobile Menu Button (Hamburger)
-        const mobileMenuBtn = document.querySelector('#mobile-menu-btn');
-        if (mobileMenuBtn) {
-            const newMobileBtn = mobileMenuBtn.cloneNode(true);
-            mobileMenuBtn.parentNode.replaceChild(newMobileBtn, mobileMenuBtn);
-
-            newMobileBtn.addEventListener('click', () => {
-                const sidebar = document.querySelector('#main-sidebar');
-                if (sidebar) {
-                    sidebar.classList.toggle('mobile-open');
-                }
-            });
-        }
-
-        // Sidebar Navigation
-        document.querySelectorAll('.nav-item').forEach(item => {
-            item.addEventListener('click', (e) => {
-                e.preventDefault();
-                const view = item.dataset.view;
-                console.log('Navigating to:', view);
-                if (view) {
-                    state.view = view;
-                    // Reset states
-                    state.searchTerm = '';
-                    state.selectedIndex = 0;
-                    state.selectedTabId = null;
-                    state.fiadoSelectedClientId = null;
-                    state.fiadoTransactions = null;
-                    if (view === 'history') fetchHistory(state, render);
-                    if (window.innerWidth <= 768) {
-                        const sidebar = document.querySelector('#main-sidebar');
-                        if (sidebar) sidebar.classList.remove('mobile-open');
-                    }
-                    render();
-                }
-            });
-        });
-
-        // Sidebar Collapsibles
-        document.querySelectorAll('.nav-group-title').forEach(title => {
-            title.addEventListener('click', () => {
-                const content = title.nextElementSibling;
-                if (content) {
-                    content.classList.toggle('hidden');
-                    const arrow = title.querySelector('.arrow');
-                    if (arrow) {
-                        arrow.style.transform = content.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
-                    }
-                }
-            });
-        });
-
-        // Logout Button
-        const logoutBtn = document.querySelector('#logout-btn');
-        if (logoutBtn) {
-            logoutBtn.addEventListener('click', () => {
-                if (confirm('Deseja realmente sair?')) {
-                    logout();
-                }
-            });
-        }
     }
 
-    function attachEvents() {
-        if (state.view === 'dashboard') {
-            attachDashboardEvents(state, render, getFilteredTabs);
-        } else if (state.view === 'detail') {
-            attachDetailEvents(state, render);
-        } else if (state.view === 'fiado') {
-            attachFiadoEvents(state, render);
-        } else if (state.view === 'fiado-detail') {
-            attachFiadoDetailEvents(state, render);
-        } else if (state.view === 'products') {
-            attachProductEvents(state, render);
-        } else if (state.view === 'clients') {
-            attachClientEvents(state, render);
-        } else if (state.view === 'history') {
-            attachHistoryEvents(state, render);
-        } else if (state.view === 'users') {
-            attachUserEvents(state, render);
-        } else if (state.view === 'categories') {
-            attachCategoryEvents(state, render);
-        }
+    // Mobile Menu Button (Hamburger)
+    const mobileMenuBtn = document.querySelector('#mobile-menu-btn');
+    if (mobileMenuBtn) {
+        const newMobileBtn = mobileMenuBtn.cloneNode(true);
+        mobileMenuBtn.parentNode.replaceChild(newMobileBtn, mobileMenuBtn);
+
+        newMobileBtn.addEventListener('click', () => {
+            const sidebar = document.querySelector('#main-sidebar');
+            if (sidebar) {
+                sidebar.classList.toggle('mobile-open');
+            }
+        });
     }
 
-    // Global Keyboard Shortcuts
-    document.addEventListener('keydown', (e) => {
-        // Block global shortcuts if ANY modal is open
-        const openModal = document.querySelector('.modal-overlay:not(.hidden)');
-        if (openModal) {
-            // If it's Escape, we let it pass to the specific Escape handler below
-            if (e.key !== 'Escape' && e.key !== 'Enter') return;
-
-            // Actually, we should allow default behavior (typing in inputs) but block dashboard navigation
-            // If Enter is pressed inside a form, let it bubble securely, but don't trigger dashboard actions.
-            // The dashboard actions are inside the `if (state.view === 'dashboard')` block below.
-            // So checking openModal inside specific blocks or at top level is key.
-        }
-        // F2: Focus Search
-        if (e.key === 'F2') {
+    // Sidebar Navigation
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', (e) => {
             e.preventDefault();
-            if (state.view === 'dashboard') {
-                const searchInput = document.querySelector('#search-comanda');
-                if (searchInput) searchInput.focus();
-            }
-            return;
-        }
-
-        // F6: New Tab
-        if (e.key === 'F6') {
-            e.preventDefault();
-            if (state.view === 'dashboard') {
-                const btn = document.querySelector('#new-tab-btn');
-                if (btn) btn.click();
-            }
-            return;
-        }
-
-        // F4: Payment (Detail View)
-        if (e.key === 'F4') {
-            if (state.view === 'detail') {
-                e.preventDefault();
-                const payBtn = document.querySelector('#open-payment-modal-btn');
-                if (payBtn) payBtn.click();
-
-                // Auto focus confirm button in modal (after short delay for render)
-                const paymentModal = document.querySelector('#payment-modal');
-                if (paymentModal) {
-                    paymentModal.classList.remove('hidden');
-                    // Focus on Confirm button for quick Enter
-                    setTimeout(() => {
-                        document.querySelector('#confirm-payment-btn').focus();
-                    }, 50);
-                }
-            }
-            return;
-        }
-
-        // F key for Fiado (only when payment modal is open)
-        if (e.key.toLowerCase() === 'f') {
-            const paymentModal = document.querySelector('#payment-modal:not(.hidden)');
-            if (paymentModal) {
-                e.preventDefault();
-                document.querySelector('#fiado-btn').click();
-                return;
-            }
-        }
-
-        // ESC: Back / Close Modal
-        if (e.key === 'Escape') {
-            e.preventDefault();
-
-            // Check for modals first
-            const openModal = document.querySelector('.modal-overlay:not(.hidden)');
-            if (openModal) {
-                openModal.classList.add('hidden');
-                return;
-            }
-
-            if (state.view === 'detail') {
-                state.selectedTabId = null;
-                state.view = 'dashboard';
-                render();
-                return;
-            }
-
-            if (state.view === 'dashboard' && state.searchTerm) {
+            const view = item.dataset.view;
+            console.log('Navigating to:', view);
+            if (view) {
+                state.view = view;
+                // Reset states
                 state.searchTerm = '';
                 state.selectedIndex = 0;
+                state.selectedTabId = null;
+                state.fiadoSelectedClientId = null;
+                state.fiadoTransactions = null;
+                if (view === 'history') fetchHistory(state, render);
+                if (window.innerWidth <= 768) {
+                    const sidebar = document.querySelector('#main-sidebar');
+                    if (sidebar) sidebar.classList.remove('mobile-open');
+                }
                 render();
-                return;
             }
+        });
+    });
 
-            if (state.view === 'history') {
-                // Optional: clear filters
-                return;
-            }
-        }
-
-        if (e.defaultPrevented && e.key !== 'Escape') return;
-
-        // Detail View Item Navigation (When input not focused)
-        if (state.view === 'detail' && state.detailItemIndex !== -1) {
-            const quickAddSearch = document.querySelector('#quick-add-search');
-            const openModal = document.querySelector('.modal-overlay:not(.hidden)');
-            const activeElement = document.activeElement;
-
-            // If not typing in search and no modal is open
-            if (activeElement !== quickAddSearch && !openModal) {
-                const currentTab = state.tabs.find(t => t.id === state.selectedTabId);
-
-                if (e.key === 'ArrowUp' || (e.key === 'Tab' && e.shiftKey)) {
-                    e.preventDefault();
-                    // Arrow Up = Previous Item (Index Decrease)
-                    if (state.detailItemIndex === 0) {
-                        state.detailItemIndex = -1;
-                        render();
-                        if (quickAddSearch) quickAddSearch.focus();
-                        return;
-                    }
-                    state.detailItemIndex = Math.max(state.detailItemIndex - 1, 0);
-                    render();
-                    return;
-                }
-
-                if (e.key === 'ArrowDown' || (e.key === 'Tab' && !e.shiftKey)) {
-                    e.preventDefault();
-                    // Arrow Down = Next Item (Index Increase)
-                    if (currentTab) {
-                        const items = currentTab.items || [];
-                        if (items.length === 0) return;
-
-                        // Check if we are at the bottom (oldest item, max index)
-                        state.detailItemIndex = Math.min(state.detailItemIndex + 1, items.length - 1);
-                        render();
-                    }
-                    return;
-                }
-
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    if (currentTab) {
-                        const item = (currentTab.items || [])[state.detailItemIndex];
-                        if (item) {
-                            const editModal = document.querySelector('#edit-item-modal');
-                            if (editModal) {
-                                document.querySelector('#edit-item-index').value = state.detailItemIndex;
-                                document.querySelector('#edit-item-name').value = item.name;
-                                document.querySelector('#edit-item-price').value = item.price;
-                                document.querySelector('#edit-item-quantity').value = item.quantity;
-
-                                editModal.classList.remove('hidden');
-                                setTimeout(() => {
-                                    const qty = document.querySelector('#edit-item-quantity');
-                                    if (qty) {
-                                        qty.focus();
-                                        qty.select();
-                                    }
-                                }, 50);
-                            }
-                        }
-                    }
-                    return;
-                }
-
-                if (e.key === 'Delete') {
-                    e.preventDefault();
-                    // Trigger removal
-                    if (currentTab) {
-                        const item = currentTab.items[state.detailItemIndex];
-                        if (item && confirm(`Remover ${item.name}?`)) {
-                            api.deleteTabItem(currentTab.id, item.id)
-                                .then(() => api.getTabById(currentTab.id))
-                                .then(updatedTab => {
-                                    const idx = state.tabs.findIndex(t => t.id === updatedTab.id);
-                                    if (idx > -1) state.tabs[idx] = updatedTab;
-                                    render();
-                                })
-                                .catch(err => alert('Erro ao remover item: ' + err.message));
-                        }
-                    }
-                    return;
+    // Sidebar Collapsibles
+    document.querySelectorAll('.nav-group-title').forEach(title => {
+        title.addEventListener('click', () => {
+            const content = title.nextElementSibling;
+            if (content) {
+                content.classList.toggle('hidden');
+                const arrow = title.querySelector('.arrow');
+                if (arrow) {
+                    arrow.style.transform = content.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
                 }
             }
-        }
+        });
+    });
 
-        // Dashboard Navigation (Arrows / Enter / Tab)
+    // Logout Button
+    const logoutBtn = document.querySelector('#logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            if (confirm('Deseja realmente sair?')) {
+                logout();
+            }
+        });
+    }
+}
+
+function attachEvents() {
+    if (state.view === 'dashboard') {
+        attachDashboardEvents(state, render, getFilteredTabs);
+    } else if (state.view === 'detail') {
+        attachDetailEvents(state, render);
+    } else if (state.view === 'fiado') {
+        attachFiadoEvents(state, render);
+    } else if (state.view === 'fiado-detail') {
+        attachFiadoDetailEvents(state, render);
+    } else if (state.view === 'products') {
+        attachProductEvents(state, render);
+    } else if (state.view === 'clients') {
+        attachClientEvents(state, render);
+    } else if (state.view === 'history') {
+        attachHistoryEvents(state, render);
+    } else if (state.view === 'users') {
+        attachUserEvents(state, render);
+    } else if (state.view === 'categories') {
+        attachCategoryEvents(state, render);
+    }
+}
+
+// Global Keyboard Shortcuts
+document.addEventListener('keydown', (e) => {
+    // Block global shortcuts if ANY modal is open
+    const openModal = document.querySelector('.modal-overlay:not(.hidden)');
+    if (openModal) {
+        // If it's Escape, we let it pass to the specific Escape handler below
+        if (e.key !== 'Escape' && e.key !== 'Enter') return;
+
+        // Actually, we should allow default behavior (typing in inputs) but block dashboard navigation
+        // If Enter is pressed inside a form, let it bubble securely, but don't trigger dashboard actions.
+        // The dashboard actions are inside the `if (state.view === 'dashboard')` block below.
+        // So checking openModal inside specific blocks or at top level is key.
+    }
+    // F2: Focus Search
+    if (e.key === 'F2') {
+        e.preventDefault();
         if (state.view === 'dashboard') {
-            // Prevent dashboard navigation if a modal is open
-            if (document.querySelector('.modal-overlay:not(.hidden)')) return;
-
-            const filteredTabs = getFilteredTabs();
             const searchInput = document.querySelector('#search-comanda');
-            const activeElement = document.activeElement;
+            if (searchInput) searchInput.focus();
+        }
+        return;
+    }
 
-            if (activeElement === searchInput && (e.key === 'ArrowDown' || (e.key === 'Tab' && !e.shiftKey))) {
+    // F6: New Tab
+    if (e.key === 'F6') {
+        e.preventDefault();
+        if (state.view === 'dashboard') {
+            const btn = document.querySelector('#new-tab-btn');
+            if (btn) btn.click();
+        }
+        return;
+    }
+
+    // F4: Payment (Detail View)
+    if (e.key === 'F4') {
+        if (state.view === 'detail') {
+            e.preventDefault();
+            const payBtn = document.querySelector('#open-payment-modal-btn');
+            if (payBtn) payBtn.click();
+
+            // Auto focus confirm button in modal (after short delay for render)
+            const paymentModal = document.querySelector('#payment-modal');
+            if (paymentModal) {
+                paymentModal.classList.remove('hidden');
+                // Focus on Confirm button for quick Enter
+                setTimeout(() => {
+                    document.querySelector('#confirm-payment-btn').focus();
+                }, 50);
+            }
+        }
+        return;
+    }
+
+    // F key for Fiado (only when payment modal is open)
+    if (e.key.toLowerCase() === 'f') {
+        const paymentModal = document.querySelector('#payment-modal:not(.hidden)');
+        if (paymentModal) {
+            e.preventDefault();
+            document.querySelector('#fiado-btn').click();
+            return;
+        }
+    }
+
+    // ESC: Back / Close Modal
+    if (e.key === 'Escape') {
+        e.preventDefault();
+
+        // Check for modals first
+        const openModal = document.querySelector('.modal-overlay:not(.hidden)');
+        if (openModal) {
+            openModal.classList.add('hidden');
+            return;
+        }
+
+        if (state.view === 'detail') {
+            state.selectedTabId = null;
+            state.view = 'dashboard';
+            render();
+            return;
+        }
+
+        if (state.view === 'dashboard' && state.searchTerm) {
+            state.searchTerm = '';
+            state.selectedIndex = 0;
+            render();
+            return;
+        }
+
+        if (state.view === 'history') {
+            // Optional: clear filters
+            return;
+        }
+    }
+
+    if (e.defaultPrevented && e.key !== 'Escape') return;
+
+    // Detail View Item Navigation (When input not focused)
+    if (state.view === 'detail' && state.detailItemIndex !== -1) {
+        const quickAddSearch = document.querySelector('#quick-add-search');
+        const openModal = document.querySelector('.modal-overlay:not(.hidden)');
+        const activeElement = document.activeElement;
+
+        // If not typing in search and no modal is open
+        if (activeElement !== quickAddSearch && !openModal) {
+            const currentTab = state.tabs.find(t => t.id === state.selectedTabId);
+
+            if (e.key === 'ArrowUp' || (e.key === 'Tab' && e.shiftKey)) {
                 e.preventDefault();
-                searchInput.blur();
-                state.selectedIndex = 0;
+                // Arrow Up = Previous Item (Index Decrease)
+                if (state.detailItemIndex === 0) {
+                    state.detailItemIndex = -1;
+                    render();
+                    if (quickAddSearch) quickAddSearch.focus();
+                    return;
+                }
+                state.detailItemIndex = Math.max(state.detailItemIndex - 1, 0);
                 render();
                 return;
             }
 
-            if (activeElement !== searchInput) {
-                if (e.key === 'ArrowRight' || (e.key === 'Tab' && !e.shiftKey)) {
-                    e.preventDefault();
-                    if (state.selectedIndex < filteredTabs.length - 1) {
-                        state.selectedIndex++;
-                        render();
-                    }
-                } else if (e.key === 'ArrowLeft' || (e.key === 'Tab' && e.shiftKey)) {
-                    e.preventDefault();
-                    if (state.selectedIndex > 0) {
-                        state.selectedIndex--;
-                        render();
-                    } else {
-                        // Back to search
-                        state.selectedIndex = 0;
-                        render();
-                        if (searchInput) searchInput.focus();
-                    }
-                } else if (e.key === 'ArrowDown') {
-                    e.preventDefault();
-                    // Jump by row (approx 4? or just next)
-                    if (state.selectedIndex + 4 < filteredTabs.length) {
-                        state.selectedIndex += 4;
-                        render();
-                    } else {
-                        state.selectedIndex = filteredTabs.length - 1;
-                        render();
-                    }
-                } else if (e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    if (state.selectedIndex - 4 >= 0) {
-                        state.selectedIndex -= 4;
-                        render();
-                    } else {
-                        state.selectedIndex = 0;
-                        render();
-                        if (searchInput) searchInput.focus();
-                    }
-                } else if (e.key === 'Enter') {
-                    e.preventDefault();
-                    const tab = filteredTabs[state.selectedIndex];
-                    if (tab) {
-                        state.selectedTabId = tab.id;
-                        state.view = 'detail';
-                        state.detailItemIndex = -1;
-                        render();
+            if (e.key === 'ArrowDown' || (e.key === 'Tab' && !e.shiftKey)) {
+                e.preventDefault();
+                // Arrow Down = Next Item (Index Increase)
+                if (currentTab) {
+                    const items = currentTab.items || [];
+                    if (items.length === 0) return;
+
+                    // Check if we are at the bottom (oldest item, max index)
+                    state.detailItemIndex = Math.min(state.detailItemIndex + 1, items.length - 1);
+                    render();
+                }
+                return;
+            }
+
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (currentTab) {
+                    const item = (currentTab.items || [])[state.detailItemIndex];
+                    if (item) {
+                        const editModal = document.querySelector('#edit-item-modal');
+                        if (editModal) {
+                            document.querySelector('#edit-item-index').value = state.detailItemIndex;
+                            document.querySelector('#edit-item-name').value = item.name;
+                            document.querySelector('#edit-item-price').value = item.price;
+                            document.querySelector('#edit-item-quantity').value = item.quantity;
+
+                            editModal.classList.remove('hidden');
+                            setTimeout(() => {
+                                const qty = document.querySelector('#edit-item-quantity');
+                                if (qty) {
+                                    qty.focus();
+                                    qty.select();
+                                }
+                            }, 50);
+                        }
                     }
                 }
+                return;
+            }
+
+            if (e.key === 'Delete') {
+                e.preventDefault();
+                // Trigger removal
+                if (currentTab) {
+                    const item = currentTab.items[state.detailItemIndex];
+                    if (item && confirm(`Remover ${item.name}?`)) {
+                        api.deleteTabItem(currentTab.id, item.id)
+                            .then(() => api.getTabById(currentTab.id))
+                            .then(updatedTab => {
+                                const idx = state.tabs.findIndex(t => t.id === updatedTab.id);
+                                if (idx > -1) state.tabs[idx] = updatedTab;
+                                render();
+                            })
+                            .catch(err => alert('Erro ao remover item: ' + err.message));
+                    }
+                }
+                return;
+            }
+        }
+    }
+
+    // Dashboard Navigation (Arrows / Enter / Tab)
+    if (state.view === 'dashboard') {
+        // Prevent dashboard navigation if a modal is open
+        if (document.querySelector('.modal-overlay:not(.hidden)')) return;
+
+        const filteredTabs = getFilteredTabs();
+        const searchInput = document.querySelector('#search-comanda');
+        const activeElement = document.activeElement;
+
+        if (activeElement === searchInput && (e.key === 'ArrowDown' || (e.key === 'Tab' && !e.shiftKey))) {
+            e.preventDefault();
+            searchInput.blur();
+            state.selectedIndex = 0;
+            render();
+            return;
+        }
+
+        if (activeElement !== searchInput) {
+            if (e.key === 'ArrowRight' || (e.key === 'Tab' && !e.shiftKey)) {
+                e.preventDefault();
+                if (state.selectedIndex < filteredTabs.length - 1) {
+                    state.selectedIndex++;
+                    render();
+                }
+            } else if (e.key === 'ArrowLeft' || (e.key === 'Tab' && e.shiftKey)) {
+                e.preventDefault();
+                if (state.selectedIndex > 0) {
+                    state.selectedIndex--;
+                    render();
+                } else {
+                    // Back to search
+                    state.selectedIndex = 0;
+                    render();
+                    if (searchInput) searchInput.focus();
+                }
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                // Jump by row (approx 4? or just next)
+                if (state.selectedIndex + 4 < filteredTabs.length) {
+                    state.selectedIndex += 4;
+                    render();
+                } else {
+                    state.selectedIndex = filteredTabs.length - 1;
+                    render();
+                }
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (state.selectedIndex - 4 >= 0) {
+                    state.selectedIndex -= 4;
+                    render();
+                } else {
+                    state.selectedIndex = 0;
+                    render();
+                    if (searchInput) searchInput.focus();
+                }
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                const tab = filteredTabs[state.selectedIndex];
+                if (tab) {
+                    state.selectedTabId = tab.id;
+                    state.view = 'detail';
+                    state.detailItemIndex = -1;
+                    render();
+                }
+            }
+        }
+    }
+});
+
+// Setup Socket Listeners
+function setupSocketListeners() {
+    // 1. Tab Created
+    socketService.on('tab:created', (newTab) => {
+        // Prevent duplicate (if this client created it, it might already be in state)
+        if (!state.tabs.find(t => t.id === newTab.id)) {
+            state.tabs.unshift(newTab);
+
+            if (state.view === 'dashboard') {
+                render();
             }
         }
     });
 
-    // Setup Socket Listeners
-    function setupSocketListeners() {
-        // 1. Tab Created
-        socketService.on('tab:created', (newTab) => {
-            // Prevent duplicate (if this client created it, it might already be in state)
-            if (!state.tabs.find(t => t.id === newTab.id)) {
-                state.tabs.unshift(newTab);
-
-                if (state.view === 'dashboard') {
-                    render();
-                }
-            }
-        });
-
-        // 2. Tab Updated
-        socketService.on('tab:updated', (updatedTab) => {
-            const index = state.tabs.findIndex(t => t.id === updatedTab.id);
-            if (index > -1) {
-                state.tabs[index] = updatedTab;
-
-                if (state.view === 'dashboard') {
-                    render();
-                } else if (state.view === 'detail' && state.selectedTabId === updatedTab.id) {
-                    // If viewing this tab, update it
-                    render();
-                }
-            } else if (updatedTab.status === 'open') {
-                // If we don't have it (maybe it was just re-opened?), add it
-                state.tabs.unshift(updatedTab);
-                if (state.view === 'dashboard') render();
-            }
-        });
-
-        // 3. Tab Deleted
-        socketService.on('tab:deleted', ({ id }) => {
-            state.tabs = state.tabs.filter(t => t.id !== id);
+    // 2. Tab Updated
+    socketService.on('tab:updated', (updatedTab) => {
+        const index = state.tabs.findIndex(t => t.id === updatedTab.id);
+        if (index > -1) {
+            state.tabs[index] = updatedTab;
 
             if (state.view === 'dashboard') {
                 render();
-            } else if (state.view === 'detail' && state.selectedTabId === id) {
-                alert('Esta comanda foi excluída por outro usuário.');
-                state.view = 'dashboard';
-                state.selectedTabId = null;
+            } else if (state.view === 'detail' && state.selectedTabId === updatedTab.id) {
+                // If viewing this tab, update it
                 render();
             }
-        });
-
-        // 4. Item Added/Updated/Deleted
-        const handleItemUpdate = ({ tabId, tab }) => {
-            // Update local state
-            const index = state.tabs.findIndex(t => t.id === tabId);
-            if (index > -1) {
-                state.tabs[index] = tab; // backend sends the full updated tab with new total
-
-                // If viewing this tab, re-render to show new item/price
-                if (state.view === 'detail' && state.selectedTabId === tabId) {
-                    render();
-                } else if (state.view === 'dashboard') {
-                    // Update dashboard to show new total if needed
-                    render();
-                }
-            }
-        };
-
-        socketService.on('tab:item:added', handleItemUpdate);
-        socketService.on('tab:item:updated', handleItemUpdate);
-        socketService.on('tab:item:deleted', handleItemUpdate);
-    }
-
-    // Attach Login Events
-    function attachLoginEvents() {
-        const loginBtn = document.querySelector('#google-login-btn');
-        if (loginBtn) {
-            loginBtn.addEventListener('click', () => {
-                window.location.href = '/auth/google';
-            });
+        } else if (updatedTab.status === 'open') {
+            // If we don't have it (maybe it was just re-opened?), add it
+            state.tabs.unshift(updatedTab);
+            if (state.view === 'dashboard') render();
         }
-    }
+    });
 
-    // Initialize Application
-    async function initApp() {
-        try {
-            // Check authentication
-            if (!isAuthenticated()) {
-                state.isAuthenticated = false;
-                render();
-                return;
-            }
+    // 3. Tab Deleted
+    socketService.on('tab:deleted', ({ id }) => {
+        state.tabs = state.tabs.filter(t => t.id !== id);
 
-            state.isAuthenticated = true;
-
-            // Initialize Socket
-            socketService.connect();
-            setupSocketListeners();
-
-            // Fetch current user
-            const user = await fetchCurrentUser();
-            state.currentUser = user;
-
-            // Fetch Initial Data
-            const [tabs, products, clients, categories] = await Promise.all([
-                api.getTabs({ status: 'open' }),
-                api.getProducts(),
-                api.getClients(),
-                api.getCategories()
-            ]);
-
-            state.tabs = tabs;
-            state.products = products;
-            state.clients = clients;
-            state.categories = categories;
-
-            // Fetch Users if Admin
-            if (state.currentUser && state.currentUser.role === 'admin') {
-                api.getUsers().then(users => {
-                    state.users = users;
-                    render(); // Re-render to show users link/data
-                }).catch(console.error);
-            }
-
+        if (state.view === 'dashboard') {
             render();
-        } catch (error) {
-            console.error('Erro ao inicializar:', error);
-            // If error is auth-related, show login
-            if (error.message.includes('autenticado')) {
-                state.isAuthenticated = false;
-                render();
-            } else {
-                alert('Erro ao carregar dados: ' + error.message);
-            }
-        } finally {
-            console.log('App Initialized. State:', state);
+        } else if (state.view === 'detail' && state.selectedTabId === id) {
+            alert('Esta comanda foi excluída por outro usuário.');
+            state.view = 'dashboard';
+            state.selectedTabId = null;
+            render();
         }
-    }
+    });
 
-    // Initial Render
-    initApp();
+    // 4. Item Added/Updated/Deleted
+    const handleItemUpdate = ({ tabId, tab }) => {
+        // Update local state
+        const index = state.tabs.findIndex(t => t.id === tabId);
+        if (index > -1) {
+            state.tabs[index] = tab; // backend sends the full updated tab with new total
+
+            // If viewing this tab, re-render to show new item/price
+            if (state.view === 'detail' && state.selectedTabId === tabId) {
+                render();
+            } else if (state.view === 'dashboard') {
+                // Update dashboard to show new total if needed
+                render();
+            }
+        }
+    };
+
+    socketService.on('tab:item:added', handleItemUpdate);
+    socketService.on('tab:item:updated', handleItemUpdate);
+    socketService.on('tab:item:deleted', handleItemUpdate);
+}
+
+// Attach Login Events
+function attachLoginEvents() {
+    const loginBtn = document.querySelector('#google-login-btn');
+    if (loginBtn) {
+        loginBtn.addEventListener('click', () => {
+            window.location.href = '/auth/google';
+        });
+    }
+}
+
+// Initialize Application
+async function initApp() {
+    try {
+        // Check authentication
+        if (!isAuthenticated()) {
+            state.isAuthenticated = false;
+            render();
+            return;
+        }
+
+        state.isAuthenticated = true;
+
+        // Initialize Socket
+        socketService.connect();
+        setupSocketListeners();
+
+        // Fetch current user
+        const user = await fetchCurrentUser();
+        state.currentUser = user;
+
+        // Fetch Initial Data
+        const [tabs, products, clients, categories] = await Promise.all([
+            api.getTabs({ status: 'open' }),
+            api.getProducts(),
+            api.getClients(),
+            api.getCategories()
+        ]);
+
+        state.tabs = tabs;
+        state.products = products;
+        state.clients = clients;
+        state.categories = categories;
+
+        // Fetch Users if Admin
+        if (state.currentUser && state.currentUser.role === 'admin') {
+            api.getUsers().then(users => {
+                state.users = users;
+                render(); // Re-render to show users link/data
+            }).catch(console.error);
+        }
+
+        render();
+    } catch (error) {
+        console.error('Erro ao inicializar:', error);
+        // If error is auth-related, show login
+        if (error.message.includes('autenticado')) {
+            state.isAuthenticated = false;
+            render();
+        } else {
+            alert('Erro ao carregar dados: ' + error.message);
+        }
+    } finally {
+        console.log('App Initialized. State:', state);
+    }
+}
+
+// Initial Render
+initApp();
