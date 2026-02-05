@@ -56,9 +56,17 @@ export function attachDashboardEvents(state, render, getFilteredTabs) {
     const searchInput = document.querySelector('#search-comanda');
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
+            const cursorPosition = e.target.selectionStart;
             state.searchTerm = e.target.value;
             state.selectedIndex = 0; // Reset selection on search
             render();
+
+            // Restore focus and cursor position
+            const newInput = document.querySelector('#search-comanda');
+            if (newInput) {
+                newInput.focus();
+                newInput.setSelectionRange(cursorPosition, cursorPosition);
+            }
         });
     }
 
