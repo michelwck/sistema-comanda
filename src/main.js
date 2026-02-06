@@ -566,6 +566,11 @@ function setupSocketListeners() {
             state.tabs.unshift(updatedTab);
             if (state.view === 'dashboard') render();
         }
+
+        // Update history view if active
+        if (state.view === 'history') {
+            fetchHistory(state, render);
+        }
     });
 
     // 3. Tab Deleted
@@ -579,6 +584,11 @@ function setupSocketListeners() {
             state.view = 'dashboard';
             state.selectedTabId = null;
             render();
+        }
+
+        // Update history view if active
+        if (state.view === 'history') {
+            fetchHistory(state, render);
         }
     });
 

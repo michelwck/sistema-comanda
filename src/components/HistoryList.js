@@ -23,7 +23,7 @@ export function HistoryList({ historyTabs, clients, filters }) {
         const registeredClientName = clientObj ? clientObj.name : '-';
 
         return `
-        <div class="history-row" style="display: grid; grid-template-columns: 2fr 1.5fr 150px 100px 100px 100px; gap: 1rem; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); align-items: center; transition: background 0.2s;">
+        <div class="history-row" style="display: grid; grid-template-columns: 2fr 1.5fr 150px 100px 100px 120px; gap: 1rem; padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); align-items: center; transition: background 0.2s;">
             <div style="font-weight: 500;">${tab.customer}</div>
             <div style="color: var(--color-text-muted);">${registeredClientName}</div>
             <div style="color: var(--color-text-muted); font-size: 0.9rem;">${dateStr} ${timeStr}</div>
@@ -35,12 +35,12 @@ export function HistoryList({ historyTabs, clients, filters }) {
             <div style="font-weight: 600; text-align: right; color: var(--color-primary);">
                 R$ ${parseFloat(tab.total || 0).toFixed(2)}
             </div>
-            <div style="text-align: right;">
-                <button class="btn btn-sm btn-outline-secondary history-reopen-btn" data-id="${tab.id}" title="Reabrir Comanda" style="margin-right: 0.5rem; color: var(--color-warning); border-color: rgba(234, 179, 8, 0.3);">
-                    Reabrir
+            <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+                <button class="history-reopen-btn" data-id="${tab.id}" title="Reabrir Comanda" style="width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--color-warning); background: rgba(234, 179, 8, 0.1); color: var(--color-warning); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;">
+                    ↻
                 </button>
-                <button class="btn btn-sm btn-outline-primary history-details-btn" data-id="${tab.id}" title="Ver Detalhes">
-                    Detalhes
+                <button class="history-details-btn" data-id="${tab.id}" title="Ver Detalhes" style="width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--color-primary); background: rgba(139, 92, 246, 0.1); color: var(--color-primary); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; font-weight: bold; font-family: monospace;">
+                    !
                 </button>
             </div>
         </div>
@@ -83,7 +83,7 @@ export function HistoryList({ historyTabs, clients, filters }) {
         </header>
         
         <div class="card" style="flex: 1; padding: 0; overflow: hidden; display: flex; flex-direction: column;">
-            <div style="padding: 1rem; background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.05); display: grid; grid-template-columns: 2fr 1.5fr 150px 100px 100px 100px; gap: 1rem; font-weight: 600; color: var(--color-text-muted); font-size: 0.9rem;">
+            <div style="padding: 1rem; background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.05); display: grid; grid-template-columns: 2fr 1.5fr 150px 100px 100px 120px; gap: 1rem; font-weight: 600; color: var(--color-text-muted); font-size: 0.9rem;">
                 <div>Nome da Comanda</div>
                 <div>Cliente</div>
                 <div>Data/Hora</div>

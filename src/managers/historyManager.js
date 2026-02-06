@@ -17,14 +17,15 @@ export function fetchHistory(state, render) {
             );
 
             // Apply Date Filter Client Side (safe fallback)
+            // Fix: Parse YYYY-MM-DD manually to create local date, avoiding UTC shift
             if (startDate) {
-                const start = new Date(startDate);
-                start.setHours(0, 0, 0, 0);
+                const [y, m, d] = startDate.split('-').map(Number);
+                const start = new Date(y, m - 1, d, 0, 0, 0, 0);
                 relevant = relevant.filter(t => new Date(t.updatedAt || t.createdAt) >= start);
             }
             if (endDate) {
-                const end = new Date(endDate);
-                end.setHours(23, 59, 59, 999);
+                const [y, m, d] = endDate.split('-').map(Number);
+                const end = new Date(y, m - 1, d, 23, 59, 59, 999);
                 relevant = relevant.filter(t => new Date(t.updatedAt || t.createdAt) <= end);
             }
 
