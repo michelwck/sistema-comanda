@@ -98,11 +98,13 @@ export function attachDashboardEvents(state, render, getFilteredTabs) {
                 api.createTab({ customer })
                     .then(newTab => {
                         modal.classList.add('hidden');
-                        state.tabs.unshift(newTab); // Add to local state
+                        // Don't add to state here - let socket event handle it to avoid duplicates
+                        // state.tabs.unshift(newTab);
                         state.selectedTabId = newTab.id;
                         state.view = 'detail';
                         state.detailItemIndex = -1;
-                        render();
+                        // Wait a bit for socket event, then render
+                        setTimeout(() => render(), 100);
                     })
                     .catch(err => alert('Erro ao criar comanda: ' + err.message));
             }
