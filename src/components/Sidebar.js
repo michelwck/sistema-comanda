@@ -55,30 +55,26 @@ export function Sidebar(currentView, currentUser) {
               <span class="nav-icon">📦</span> <span class="nav-text">Produtos</span>
             </a>
             <!-- Link visible only for admins or all (logic handled in main render if needed, but safe here) -->
-            ${safeRole === 'admin' ? `
-            <a href="#" class="nav-item ${isActive('users')}" data-view="users">
-              <span class="nav-icon">🛡️</span> <span class="nav-text">Usuários</span>
-            </a>
-            ` : ''}
-        </div>
-        </div>
-        
-        <div class="nav-group collapsible">
-          <div class="nav-group-title">
-            <span class="nav-text">Financeiro</span>
-            <span class="arrow">▼</span>
-          </div>
-          <div class="nav-group-content hidden">
-            <a href="#" class="nav-item ${isActive('fiado')}" data-view="fiado">
-              <span class="nav-icon">📝</span>
-              <span class="nav-text">Fiado</span>
-            </a>
-            <a href="#" class="nav-item ${isActive('history')}" data-view="history">
-              <span class="nav-icon">📜</span>
-              <span class="nav-text">Histórico</span>
-            </a>
-          </div>
-        </div>
+
+        </div >
+        </div >
+
+  <div class="nav-group collapsible">
+    <div class="nav-group-title">
+      <span class="nav-text">Financeiro</span>
+      <span class="arrow">▼</span>
+    </div>
+    <div class="nav-group-content hidden">
+      <a href="#" class="nav-item ${isActive('fiado')}" data-view="fiado">
+        <span class="nav-icon">📝</span>
+        <span class="nav-text">Fiado</span>
+      </a>
+      <a href="#" class="nav-item ${isActive('history')}" data-view="history">
+        <span class="nav-icon">📜</span>
+        <span class="nav-text">Histórico</span>
+      </a>
+    </div>
+  </div>
 
         ${user.role === 'admin' ? `
         <div class="nav-group">
@@ -90,11 +86,12 @@ export function Sidebar(currentView, currentUser) {
             </a>
           </div>
         </div>
-        ` : ''}
-      </nav>
+        ` : ''
+    }
+      </nav >
 
-      <div style="margin-top: auto;">
-        <div style="
+  <div style="margin-top: auto;">
+    <div style="
           padding: 1rem;
           background: rgba(255,255,255,0.03);
           border-radius: 12px;
@@ -103,7 +100,7 @@ export function Sidebar(currentView, currentUser) {
           gap: 0.75rem;
           margin-top: 1rem;
         ">
-          <div style="
+      <div style="
             width: 36px;
             height: 36px;
             border-radius: 50%;
@@ -114,11 +111,11 @@ export function Sidebar(currentView, currentUser) {
             font-weight: 600;
             font-size: 0.9rem;
           ">${initials}</div>
-          <div style="flex: 1; min-width: 0;">
-            <div style="font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${safeName}</div>
-            <div style="font-size: 0.75rem; color: #a0aec0; text-transform: capitalize;">${safeRole === 'operator' ? 'Operador' : 'Administrador'}</div>
-          </div>
-          <button id="logout-btn" style="
+      <div style="flex: 1; min-width: 0;">
+        <div style="font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${safeName}</div>
+        <div style="font-size: 0.75rem; color: #a0aec0; text-transform: capitalize;">${safeRole === 'operator' ? 'Operador' : 'Administrador'}</div>
+      </div>
+      <button id="logout-btn" style="
             background: none;
             border: none;
             color: #ef4444;
@@ -130,14 +127,14 @@ export function Sidebar(currentView, currentUser) {
             justify-content: center;
             transition: background 0.2s;
           " title="Sair">
-            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-              <polyline points="16 17 21 12 16 7"></polyline>
-              <line x1="21" y1="12" x2="9" y2="12"></line>
-            </svg>
-          </button>
-        </div>
-      </div>
-    </aside>
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+      </button>
+    </div>
+  </div>
+    </aside >
   `;
 }

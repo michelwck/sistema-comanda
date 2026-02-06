@@ -60,6 +60,9 @@ model Tab {
   client    Client?  @relation(fields: [clientId], references: [id])
   items     TabItem[]
   transactions ClientTransaction[]
+
+  createdByUserId Int?
+  createdBy       User? @relation("TabCreator", fields: [createdByUserId], references: [id])
   
   @@index([status])
   @@index([openedAt])
@@ -108,4 +111,6 @@ model User {
   isActive      Boolean  @default(true)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+
+  createdTabs   Tab[]    @relation("TabCreator")
 }

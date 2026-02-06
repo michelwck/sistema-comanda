@@ -85,7 +85,8 @@ function render() {
             contentHtml = Dashboard({
                 tabs: getFilteredTabs(),
                 selectedIndex: state.selectedIndex,
-                searchTerm: state.searchTerm
+                searchTerm: state.searchTerm,
+                currentUser: state.currentUser
             });
         } else if (state.view === 'detail') {
             const tab = state.tabs.find(t => t.id === state.selectedTabId);

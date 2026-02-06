@@ -7,10 +7,11 @@ const tabCardTemplate = `
         {{openedAt}}
     </div>
     
-    <div style="flex: 1; display: flex; align-items: center; justify-content: center; text-align: center; width: 100%; padding: 0.5rem 0;">
+    <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; width: 100%; padding: 0.5rem 0;">
         <h3 class="tab-card-title">
             {{customer}}
         </h3>
+        {{creatorHtml}}
     </div>
 
     <div style="align-self: flex-start;">
@@ -27,7 +28,7 @@ const tabListTemplate = `
 </div>
 `;
 
-export function TabList(tabs = activeTabs, selectedIndex = 0) {
+export function TabList(tabs = activeTabs, selectedIndex = 0, currentUser = null) {
   if (!tabs || tabs.length === 0) {
     return `<div style="text-align: center; color: var(--color-text-muted); padding: 2rem;">Nenhuma comanda encontrada</div>`;
   }
@@ -45,6 +46,11 @@ export function TabList(tabs = activeTabs, selectedIndex = 0) {
     const statusBg = isOpen ? 'rgba(34, 197, 94, 0.2)' : 'rgba(255, 255, 255, 0.1)';
     const statusColor = isOpen ? 'var(--color-success)' : 'var(--color-text-muted)';
 
+    let creatorHtml = '';
+    if (currentUser && currentUser.role === 'admin' && tab.createdBy) {
+      creatorHtml = `<div style="font-size: 0.7rem; color: var(--color-text-muted); margin-top: 4px;">Criado por: ${tab.createdBy.name}</div>`;
+    }
+
     return render(tabCardTemplate, {
       id: tab.id,
       customer: tab.customer,
@@ -53,7 +59,8 @@ export function TabList(tabs = activeTabs, selectedIndex = 0) {
       statusColor,
       statusText: isOpen ? 'Aberta' : 'Fechada',
       openedAt: tab.openedAt ? new Date(tab.openedAt).toLocaleDateString('pt-BR') : '',
-      totalFormatted: parseFloat(tab.total || 0).toFixed(2)
+      totalFormatted: parseFloat(tab.total || 0).toFixed(2),
+      creatorHtml
     });
   }).join('');
 

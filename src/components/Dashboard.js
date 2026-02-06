@@ -1,7 +1,7 @@
 import { TabList } from './TabList';
 
 export function Dashboard(props = {}) {
-  const { tabs, searchTerm = '', selectedIndex = 0 } = props;
+  const { tabs, searchTerm = '', selectedIndex = 0, currentUser = null } = props;
 
   return `
     <main class="container">
@@ -14,7 +14,7 @@ export function Dashboard(props = {}) {
         </div>
         <input type="text" id="search-comanda" class="input" placeholder="Pesquisar por cliente..." value="${searchTerm}" style="width: 100%;" autocomplete="off" aria-label="Pesquisar comanda">
       </div>
-      ${TabList(tabs, selectedIndex)}
+      ${TabList(tabs, selectedIndex, currentUser)}
     </main>
 
     <!-- New Tab Modal -->

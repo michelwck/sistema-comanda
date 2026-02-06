@@ -22,7 +22,10 @@ export const getAllTabs = async (req, res, next) => {
                 items: {
                     orderBy: { addedAt: 'desc' }
                 },
-                client: true
+                client: true,
+                createdBy: {
+                    select: { name: true }
+                }
             },
             orderBy: { openedAt: 'desc' }
         });
@@ -44,7 +47,10 @@ export const getTabById = async (req, res, next) => {
                 items: {
                     orderBy: { addedAt: 'desc' }
                 },
-                client: true
+                client: true,
+                createdBy: {
+                    select: { name: true }
+                }
             }
         });
 
@@ -72,11 +78,15 @@ export const createTab = async (req, res, next) => {
                 customer,
                 clientId: clientId ? parseInt(clientId) : null,
                 status: 'open',
-                total: 0
+                total: 0,
+                createdByUserId: req.user ? req.user.id : null
             },
             include: {
                 items: true,
-                client: true
+                client: true,
+                createdBy: {
+                    select: { name: true }
+                }
             }
         });
 
@@ -112,7 +122,10 @@ export const updateTab = async (req, res, next) => {
                 data: updateData,
                 include: {
                     items: true,
-                    client: true
+                    client: true,
+                    createdBy: {
+                        select: { name: true }
+                    }
                 }
             });
 
@@ -201,7 +214,10 @@ export const addTabItem = async (req, res, next) => {
                 items: {
                     orderBy: { addedAt: 'desc' }
                 },
-                client: true
+                client: true,
+                createdBy: {
+                    select: { name: true }
+                }
             }
         });
 
@@ -247,7 +263,10 @@ export const updateTabItem = async (req, res, next) => {
                 items: {
                     orderBy: { addedAt: 'desc' }
                 },
-                client: true
+                client: true,
+                createdBy: {
+                    select: { name: true }
+                }
             }
         });
 
@@ -287,7 +306,10 @@ export const deleteTabItem = async (req, res, next) => {
                 items: {
                     orderBy: { addedAt: 'desc' }
                 },
-                client: true
+                client: true,
+                createdBy: {
+                    select: { name: true }
+                }
             }
         });
 
