@@ -12,8 +12,9 @@ export function fetchHistory(state, render) {
     // Fetch all (or filtered by date) and filter in memory since API status support is unsure
     api.getTabs(filters)
         .then(tabs => {
+            // Only show closed, deleted, or paid tabs (exclude 'open' tabs)
             let relevant = tabs.filter(t =>
-                (t.status === 'closed' || t.status === 'deleted' || t.deletedAt !== null)
+                t.status !== 'open' && (t.status === 'closed' || t.status === 'deleted' || t.status === 'paid' || t.status === 'cancelled')
             );
 
             // Apply Date Filter Client Side (safe fallback)

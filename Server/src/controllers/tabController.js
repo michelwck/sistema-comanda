@@ -112,6 +112,9 @@ export const updateTab = async (req, res, next) => {
             updateData.status = status;
             if (status === 'paid' || status === 'cancelled') {
                 updateData.closedAt = new Date();
+            } else if (status === 'open') {
+                // When reopening, clear the closedAt timestamp
+                updateData.closedAt = null;
             }
         }
         if (clientId !== undefined) updateData.clientId = clientId ? parseInt(clientId) : null;
