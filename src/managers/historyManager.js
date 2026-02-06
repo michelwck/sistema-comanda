@@ -86,7 +86,26 @@ export function attachHistoryEvents(state, render) {
             state.selectedTabId = id;
             state.view = 'detail';
             state.detailItemIndex = -1;
+            state.detailItemIndex = -1;
             render();
+        });
+    });
+
+    // Reopen Tab Buttons
+    document.querySelectorAll('.history-reopen-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            if (!confirm('Tem certeza que deseja reabrir esta comanda? Ela voltará para a tela inicial.')) return;
+
+            const id = parseInt(btn.dataset.id);
+            try {
+                await api.updateTab(id, { status: 'open' });
+                // Refresh history (it should disappear from list)
+                fetchHistory(state, render);
+                alert('Comanda reaberta com sucesso!');
+            } catch (error) {
+                console.error('Erro ao reabrir comanda:', error);
+                alert('Erro ao reabrir comanda: ' + error.message);
+            }
         });
     });
 }

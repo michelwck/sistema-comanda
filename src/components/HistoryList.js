@@ -36,6 +36,9 @@ export function HistoryList({ historyTabs, clients, filters }) {
                 R$ ${parseFloat(tab.total || 0).toFixed(2)}
             </div>
             <div style="text-align: right;">
+                <button class="btn btn-sm btn-outline-secondary history-reopen-btn" data-id="${tab.id}" title="Reabrir Comanda" style="margin-right: 0.5rem; color: var(--color-warning); border-color: rgba(234, 179, 8, 0.3);">
+                    Reabrir
+                </button>
                 <button class="btn btn-sm btn-outline-primary history-details-btn" data-id="${tab.id}" title="Ver Detalhes">
                     Detalhes
                 </button>

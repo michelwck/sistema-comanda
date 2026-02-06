@@ -160,13 +160,18 @@ export const deleteTab = async (req, res, next) => {
     try {
         const { id } = req.params;
 
-        await prisma.tab.delete({
-            where: { id: parseInt(id) }
+        // Soft Delete
+        await prisma.tab.update({
+            where: { id: parseInt(id) },
+            data: { status: 'deleted', closedAt: new Date() }
         });
 
         // Emitir evento Socket.io
         const io = req.app.get('io');
         io.emit('tab:deleted', { id: parseInt(id) });
+        // We still emit 'deleted' so dashboard removes it. 
+        // But history view will see it as updated/status change.
+
 
         res.status(204).send();
     } catch (error) {
