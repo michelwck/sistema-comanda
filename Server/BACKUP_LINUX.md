@@ -1,239 +1,296 @@
-# ============================================
-# Configuração de Backup Automático na VPS Linux
-# ============================================
+# 🔧 Troubleshooting e Setup Google Drive - Linux
 
-## 📋 Passo a Passo
+## 🚨 Problemas Comuns e Soluções
 
-### 1. Conectar na VPS
+### 1. Erro: "pg_dump: command not found"
 
+**Solução:**
 ```bash
-ssh root@69.169.109.119
+# Atualizar repositórios
+sudo apt update
+
+# Instalar PostgreSQL client
+sudo apt install postgresql-client -y
+
+# Verificar instalação
+pg_dump --version
 ```
 
-### 2. Navegar até o diretório do projeto
+### 2. Erro: "Connection refused" ao conectar no banco
 
+**Possíveis causas:**
+- PostgreSQL não está rodando
+- Porta incorreta
+- Host incorreto
+
+**Soluções:**
 ```bash
-cd /caminho/do/seu/projeto/Server
-# Exemplo: cd /root/sistema-comanda/Server
+# Verificar se PostgreSQL está rodando
+sudo systemctl status postgresql
+
+# Iniciar PostgreSQL
+sudo systemctl start postgresql
+
+# Habilitar para iniciar automaticamente
+sudo systemctl enable postgresql
+
+# Testar conexão manualmente
+psql -h localhost -p 5433 -U postgres -d sistema_comanda -c "SELECT 1;"
 ```
 
-### 3. Criar o script de backup
+### 3. Erro: "Permission denied" ao executar script
 
+**Solução:**
 ```bash
-# Criar o arquivo
-nano backup.sh
-
-# Cole o conteúdo do script backup.sh
-# Salve com Ctrl+O, Enter, Ctrl+X
-```
-
-### 4. Dar permissão de execução
-
-```bash
+# Dar permissão de execução
 chmod +x backup.sh
+chmod +x setup-rclone.sh
+
+# Verificar permissões
+ls -l *.sh
 ```
 
-### 5. Testar o script manualmente
+### 4. Script não executa no crontab
+
+**Soluções:**
+```bash
+# 1. Verificar se o cron está rodando
+sudo systemctl status cron
+
+# 2. Iniciar o cron
+sudo systemctl start cron
+
+# 3. Ver logs do cron
+grep CRON /var/log/syslog | tail -20
+
+# 4. Usar caminhos absolutos no crontab
+# ERRADO: ./backup.sh
+# CERTO: /root/sistema-comanda/Server/backup.sh
+```
+
+### 5. Erro ao fazer parse do DATABASE_URL
+
+**Solução:**
+```bash
+# Verificar se o arquivo .env existe
+cat .env | grep DATABASE_URL
+
+# Remover espaços e caracteres especiais
+# O arquivo .env deve ter exatamente:
+DATABASE_URL="postgresql://postgres:senha@localhost:5433/sistema_comanda?schema=public"
+
+# Sem espaços antes ou depois do =
+```
+
+---
+
+## 📦 Setup Google Drive com rclone
+
+### Passo 1: Executar script de setup
 
 ```bash
+# Dar permissão
+chmod +x setup-rclone.sh
+
+# Executar
+./setup-rclone.sh
+```
+
+### Passo 2: Configuração Manual (se preferir)
+
+```bash
+# Instalar rclone
+curl https://rclone.org/install.sh | sudo bash
+
+# Configurar
+rclone config
+
+# Seguir as instruções:
+# n (novo)
+# gdrive (nome)
+# drive (tipo)
+# Enter (client ID vazio)
+# Enter (client secret vazio)
+# 1 (scope - acesso completo)
+# Enter (root folder vazio)
+# Enter (service account vazio)
+# n (não editar avançado)
+# n (NÃO usar auto config - importante!)
+# [Copiar link e abrir no navegador]
+# [Fazer login e autorizar]
+# [Colar código de verificação]
+# n (não é team drive)
+# y (confirmar)
+# q (sair)
+```
+
+### Passo 3: Testar rclone
+
+```bash
+# Listar pastas do Google Drive
+rclone lsd gdrive:
+
+# Criar pasta de backups
+rclone mkdir gdrive:Backups/SistemaComanda
+
+# Testar upload
+echo "teste" > teste.txt
+rclone copy teste.txt gdrive:Backups/SistemaComanda/
+rm teste.txt
+
+# Listar arquivos
+rclone ls gdrive:Backups/SistemaComanda
+```
+
+### Passo 4: Atualizar backup.sh
+
+O script já está configurado! Apenas certifique-se que:
+```bash
+ENABLE_GDRIVE_UPLOAD=true  # Está como true
+```
+
+---
+
+## 🔍 Comandos de Diagnóstico
+
+### Verificar ambiente
+
+```bash
+# Ver caminho atual
+pwd
+
+# Ver conteúdo do diretório
+ls -la
+
+# Ver se .env existe
+cat .env
+
+# Ver se backup.sh existe e tem permissão
+ls -l backup.sh
+
+# Testar script manualmente
 ./backup.sh
 ```
 
-Você deverá ver mensagens de sucesso e o backup será criado em `backups/`.
-
-### 6. Verificar se o backup foi criado
+### Verificar logs
 
 ```bash
-ls -lh backups/
-```
+# Log de backup mais recente
+tail -50 backups/logs/backup_$(date +%Y-%m).log
 
-### 7. Configurar o crontab
-
-```bash
-crontab -e
-```
-
-Se perguntar qual editor usar, escolha `nano` (geralmente opção 1).
-
-### 8. Adicionar as linhas do crontab
-
-Cole as seguintes linhas no final do arquivo:
-
-```cron
-# Backup Sistema Comanda - De hora em hora das 14h às 02h
-# Formato: minuto hora dia mês dia-da-semana comando
-
-# Das 14h às 23h (todos os dias)
-0 14-23 * * * /root/sistema-comanda/Server/backup.sh >> /root/sistema-comanda/Server/backups/logs/cron.log 2>&1
-
-# Das 00h às 02h (todos os dias)
-0 0-2 * * * /root/sistema-comanda/Server/backup.sh >> /root/sistema-comanda/Server/backups/logs/cron.log 2>&1
-```
-
-**IMPORTANTE:** Ajuste o caminho `/root/sistema-comanda/Server/backup.sh` para o caminho real do seu projeto!
-
-Salve com `Ctrl+O`, `Enter`, `Ctrl+X`.
-
-### 9. Verificar se o crontab foi configurado
-
-```bash
-crontab -l
-```
-
-Você deverá ver as linhas que acabou de adicionar.
-
-### 10. Verificar logs do cron (opcional)
-
-```bash
-# Ver últimas 50 linhas do log
-tail -f /root/sistema-comanda/Server/backups/logs/cron.log
-
-# Pressione Ctrl+C para sair
-```
-
-## 📅 Horários de Execução
-
-O backup será executado:
-- **14:00** (2 da tarde)
-- **15:00**
-- **16:00**
-- **17:00**
-- **18:00**
-- **19:00**
-- **20:00**
-- **21:00**
-- **22:00**
-- **23:00**
-- **00:00** (meia-noite)
-- **01:00**
-- **02:00** (2 da manhã)
-
-**Total:** 13 backups por dia
-
-## 📦 Retenção de Backups
-
-- Backups são mantidos por **7 dias**
-- Backups são comprimidos com gzip (economiza espaço)
-- Limpeza automática de backups antigos
-
-## 🔍 Comandos Úteis
-
-### Ver todos os backups
-
-```bash
-ls -lh /root/sistema-comanda/Server/backups/
-```
-
-### Ver logs de backup
-
-```bash
-# Log do mês atual
-tail -50 /root/sistema-comanda/Server/backups/logs/backup_$(date +%Y-%m).log
+# Log do cron
+tail -50 backups/logs/cron.log
 
 # Acompanhar em tempo real
-tail -f /root/sistema-comanda/Server/backups/logs/backup_$(date +%Y-%m).log
+tail -f backups/logs/backup_$(date +%Y-%m).log
 ```
 
-### Restaurar um backup
+### Verificar backups
 
 ```bash
-# Descompactar
-gunzip -k backups/backup_sistema_comanda_2026-02-09_14-00-00.sql.gz
+# Backups locais
+ls -lh backups/*.gz
 
-# Restaurar
-psql -h localhost -p 5433 -U postgres -d sistema_comanda < backups/backup_sistema_comanda_2026-02-09_14-00-00.sql
+# Backups no Google Drive
+rclone ls gdrive:Backups/SistemaComanda
+
+# Espaço usado
+du -sh backups/
 ```
 
-### Parar os backups automáticos
+---
 
-```bash
-# Editar crontab
-crontab -e
+## 📝 Comandos Completos para Copiar e Colar
 
-# Comente as linhas adicionando # no início:
-# 0 14-23 * * * /root/sistema-comanda/Server/backup.sh >> ...
-# 0 0-2 * * * /root/sistema-comanda/Server/backup.sh >> ...
-
-# Ou remova completamente
-crontab -r  # Remove TODOS os cron jobs
-```
-
-### Espaço em disco
-
-```bash
-# Ver espaço usado pelos backups
-du -sh /root/sistema-comanda/Server/backups/
-
-# Ver espaço disponível no disco
-df -h
-```
-
-## 🛠️ Troubleshooting
-
-### Erro: "pg_dump: command not found"
-
-```bash
-# Instalar PostgreSQL client tools
-apt update
-apt install postgresql-client
-```
-
-### Erro: "Permission denied"
-
-```bash
-# Dar permissão de execução
-chmod +x /root/sistema-comanda/Server/backup.sh
-```
-
-### Backups não estão sendo criados
-
-```bash
-# Verificar se o cron está rodando
-systemctl status cron
-
-# Iniciar o cron se necessário
-systemctl start cron
-systemctl enable cron
-
-# Ver logs do sistema
-grep CRON /var/log/syslog | tail -20
-```
-
-### Testar conexão com o banco
-
-```bash
-psql -h localhost -p 5433 -U postgres -d sistema_comanda -c "SELECT COUNT(*) FROM \"Tab\";"
-```
-
-## 📝 Exemplo de Uso Completo
+### Setup Inicial Completo
 
 ```bash
 # 1. Conectar na VPS
 ssh root@69.169.109.119
 
-# 2. Ir para o diretório do projeto
+# 2. Navegar para o diretório (ajuste o caminho!)
 cd /root/sistema-comanda/Server
 
-# 3. Criar o script (copie o conteúdo de backup.sh)
+# 3. Instalar PostgreSQL client (se necessário)
+sudo apt update && sudo apt install postgresql-client -y
+
+# 4. Criar backup.sh
 nano backup.sh
+# Cole o conteúdo do arquivo backup.sh atualizado
+# Ctrl+O, Enter, Ctrl+X
 
-# 4. Dar permissão
-chmod +x backup.sh
+# 5. Criar setup-rclone.sh
+nano setup-rclone.sh
+# Cole o conteúdo do arquivo setup-rclone.sh
+# Ctrl+O, Enter, Ctrl+X
 
-# 5. Testar
+# 6. Dar permissões
+chmod +x backup.sh setup-rclone.sh
+
+# 7. Configurar Google Drive
+./setup-rclone.sh
+
+# 8. Testar backup
 ./backup.sh
 
-# 6. Configurar crontab
+# 9. Verificar se funcionou
+ls -lh backups/
+rclone ls gdrive:Backups/SistemaComanda
+
+# 10. Configurar crontab
 crontab -e
-# Adicione as linhas do cron
-
-# 7. Verificar
-crontab -l
-
-# 8. Acompanhar logs
-tail -f backups/logs/cron.log
 ```
 
-## ✅ Pronto!
+### Linhas do Crontab (ajuste o caminho!)
 
-Seu sistema de backup está configurado e rodará automaticamente de hora em hora das 14h às 02h!
+```cron
+# Backup Sistema Comanda - De hora em hora das 14h às 02h
+0 14-23 * * * /root/sistema-comanda/Server/backup.sh >> /root/sistema-comanda/Server/backups/logs/cron.log 2>&1
+0 0-2 * * * /root/sistema-comanda/Server/backup.sh >> /root/sistema-comanda/Server/backups/logs/cron.log 2>&1
+```
+
+---
+
+## ✅ Checklist de Verificação
+
+Antes de configurar o cron, certifique-se:
+
+- [ ] PostgreSQL está instalado e rodando
+- [ ] `pg_dump` está disponível (`pg_dump --version`)
+- [ ] Arquivo `.env` existe e está correto
+- [ ] `backup.sh` tem permissão de execução (`chmod +x`)
+- [ ] `backup.sh` roda manualmente sem erros (`./backup.sh`)
+- [ ] rclone está instalado (`rclone version`)
+- [ ] rclone está configurado (`rclone listremotes`)
+- [ ] Upload para Google Drive funciona (`rclone ls gdrive:`)
+- [ ] Caminhos no crontab são absolutos
+
+---
+
+## 🆘 Ainda com problemas?
+
+Execute este comando e me envie a saída:
+
+```bash
+echo "=== Diagnóstico Completo ==="
+echo "Diretório atual: $(pwd)"
+echo ""
+echo "Arquivos:"
+ls -la *.sh .env 2>&1
+echo ""
+echo "PostgreSQL Client:"
+which pg_dump
+pg_dump --version 2>&1
+echo ""
+echo "rclone:"
+which rclone
+rclone version 2>&1
+echo ""
+echo "DATABASE_URL:"
+grep DATABASE_URL .env 2>&1
+echo ""
+echo "Teste de backup:"
+./backup.sh 2>&1 | head -20
+```
+
+Copie toda a saída e me envie para eu ajudar!
