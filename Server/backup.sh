@@ -55,19 +55,28 @@ if [ -z "$DATABASE_URL" ]; then
     exit 1
 fi
 
+# Função para decodificar URL encoding
+urldecode() {
+    local url_encoded="${1//+/ }"
+    printf '%b' "${url_encoded//%/\\x}"
+}
+
 # Parse DATABASE_URL (formato: postgresql://user:password@host:port/database)
 if [[ $DATABASE_URL =~ postgresql://([^:]+):([^@]+)@([^:]+):([0-9]+)/([^\?]+) ]]; then
     DB_USER="${BASH_REMATCH[1]}"
-    DB_PASSWORD="${BASH_REMATCH[2]}"
+    DB_PASSWORD_ENCODED="${BASH_REMATCH[2]}"
     DB_HOST="${BASH_REMATCH[3]}"
     DB_PORT="${BASH_REMATCH[4]}"
     DB_NAME="${BASH_REMATCH[5]}"
+    
+    # Decodificar senha (se tiver caracteres especiais codificados)
+    DB_PASSWORD=$(urldecode "$DB_PASSWORD_ENCODED")
 else
     log "ERROR" "Formato inválido de DATABASE_URL: $DATABASE_URL"
     exit 1
 fi
 
-log "INFO" "Banco de dados: $DB_NAME @ $DB_HOST:$DB_PORT"
+log "INFO" "Banco de dados: $DB_NAME @ $DB_HOST:$DB_PORT (usuário: $DB_USER)"
 
 # Nome do arquivo de backup
 TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
@@ -121,7 +130,7 @@ if pg_dump -h "$DB_HOST" -p "$DB_PORT" -U "$DB_USER" -d "$DB_NAME" \
     log "INFO" "Total de backups locais: $BACKUP_COUNT"
     
 else
-    log "ERROR" "Erro ao executar pg_dump"
+    log "ERROR" "Erro ao executar pg_dump. Verifique as credenciais e conexão com o banco."
     unset PGPASSWORD
     exit 1
 fi
