@@ -8,11 +8,18 @@ DOMAIN="zerosetebar.com.br"
 EMAIL="admin@zerosetebar.com.br" # Email para renovação do SSL
 APP_PORT=3000
 API_PORT=3001
-PROJECT_DIR="/root/sistema-comanda/Server"
+PROJECT_DIR=$(pwd)
 
 echo "=========================================="
 echo "Iniciando configuração para $DOMAIN"
 echo "=========================================="
+
+# Verificar se estamos na pasta correta
+if [ ! -f "package.json" ]; then
+    echo "ERRO: Execute este script de DENTRO da pasta Server do projeto!"
+    echo "Exemplo: cd /home/usuario/sistema-comanda/Server && ./setup-domain.sh"
+    exit 1
+fi
 
 # 1. Atualizar Sistema
 echo "[1/6] Atualizando pacotes do sistema..."
