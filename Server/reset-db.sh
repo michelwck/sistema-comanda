@@ -19,17 +19,25 @@ sleep 5
 echo "[1/4] Instalando dependências..."
 npm install > /dev/null 2>&1
 
-# 2. Resetar Banco de Dados (Drop + Migrate + Seed)
-echo "[2/4] Resetando Banco de Dados (Drop all tables + Re-apply migrations + Seed)..."
-# --force pula a confirmação interativa
-npx prisma migrate reset --force
+# 2. Resetar Banco de Dados (usando db push para garantir schema atualizado)
+echo "[2/4] Resetando Banco de Dados e Sincronizando Schema..."
+
+# Remove migrações antigas que podem estar desatualizadas
+rm -rf prisma/migrations
+
+# Empurra o schema atual para o banco (cria tabelas conforme schema.prisma)
+npx prisma db push --accept-data-loss
 
 if [ $? -eq 0 ]; then
-    echo "✅ Banco de dados resetado com sucesso!"
+    echo "✅ Banco de dados resetado e estrutura sincronizada!"
 else
-    echo "❌ ERRO ao resetar banco de dados!"
+    echo "❌ ERRO ao sincronizar banco de dados!"
     exit 1
 fi
+
+# 2.1 Rodar Seed
+echo "[2.1/4] Populando Banco de Dados (Seed)..."
+npx prisma db seed
 
 # 3. Regenerar Prisma Client
 echo "[3/4] Regenerando Prisma Client..."
