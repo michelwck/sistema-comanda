@@ -14,7 +14,12 @@ export const getAllProducts = async (req, res, next) => {
                 mode: 'insensitive'
             };
         }
-        if (category) where.category = category;
+        if (category) {
+            // Fix: Filter by category name in related model
+            where.category = {
+                name: category
+            };
+        }
 
         const products = await prisma.product.findMany({
             where,
@@ -62,13 +67,13 @@ export const createProduct = async (req, res, next) => {
             data: {
                 name,
                 price: parseFloat(price),
-                // Se category (string) for enviado, precisamos buscar ou criar a categoria
-                // Mas o frontend agora deve enviar categoryId se selecionado, ou o nome se novo?
-                // Vamos assumir que o frontend envia categoryId se for select, ou o nome se for texto (legacy)
-                // O schema pede categoryId Int.
-                // Ajuste rápido: Se o frontend envia string em 'category', precisamos converter
-                // Mas vamos checar se é número
-                categoryId: isNaN(parseInt(category)) ? undefined : parseInt(category)
+                // Fix: Handle category relation
+                category: {
+                    connectOrCreate: {
+                        where: { name: category },
+                        create: { name: category }
+                    }
+                }
             },
             include: { category: true }
         });
@@ -93,8 +98,13 @@ export const updateProduct = async (req, res, next) => {
         if (name !== undefined) updateData.name = name;
         if (price !== undefined) updateData.price = parseFloat(price);
         if (category !== undefined) {
-             const catId = parseInt(category);
-             if (!isNaN(catId)) updateData.categoryId = catId;
+            // Fix: Handle category update
+            updateData.category = {
+                connectOrCreate: {
+                    where: { name: category },
+                    create: { name: category }
+                }
+            };
         }
 
         const product = await prisma.product.update({
