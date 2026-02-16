@@ -45,7 +45,18 @@ async function main() {
 
     const products = [];
     for (const p of productsData) {
-        const product = await prisma.product.create({ data: p });
+        const product = await prisma.product.create({
+            data: {
+                name: p.name,
+                price: p.price,
+                category: {
+                    connectOrCreate: {
+                        where: { name: p.category },
+                        create: { name: p.category }
+                    }
+                }
+            }
+        });
         products.push(product);
     }
     console.log(`Created ${products.length} products.`);
