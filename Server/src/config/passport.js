@@ -24,23 +24,32 @@ passport.use(
                 });
 
                 if (!user) {
-                    // User not authorized - reject login
-                    return done(null, false, { message: 'Usuário não autorizado. Entre em contato com o administrador.' });
+                    // Create new user if not exists
+                    user = await prisma.user.create({
+                        data: {
+                            email,
+                            name,
+                            picture,
+                            googleId,
+                            role: 'operator', // Default role for new users
+                            isActive: true
+                        }
+                    });
+                } else {
+                    // Update existing user info
+                    user = await prisma.user.update({
+                        where: { email },
+                        data: {
+                            name,
+                            picture,
+                            googleId,
+                        },
+                    });
                 }
 
                 if (!user.isActive) {
                     return done(null, false, { message: 'Usuário desativado. Entre em contato com o administrador.' });
                 }
-
-                // Update user info from Google (name, picture, googleId)
-                user = await prisma.user.update({
-                    where: { email },
-                    data: {
-                        name,
-                        picture,
-                        googleId,
-                    },
-                });
 
                 return done(null, user);
             } catch (error) {
