@@ -10,7 +10,22 @@ import { UserList } from './components/UserList'
 import { CategoryList } from './components/CategoryList'
 import { Login } from './components/Login'
 import * as api from './services/api'
-import { isAuthenticated, logout, fetchCurrentUser } from './services/auth'
+import { isAuthenticated, logout, fetchCurrentUser, setToken } from './services/auth'
+
+// Handle Callback (Token parsing from URL)
+if (window.location.pathname === '/callback') {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    const error = params.get('error');
+
+    if (token) {
+        setToken(token);
+        window.history.replaceState({}, document.title, '/'); // Clear URL without reload
+    } else if (error) {
+        alert('Erro no login: ' + error);
+        window.location.href = '/';
+    }
+}
 import { normalizeString } from './utils/helpers.js'
 import { attachDashboardEvents } from './managers/dashboardManager.js'
 import { attachDetailEvents } from './managers/detailManager.js'
