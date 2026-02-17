@@ -8,3 +8,6 @@ dist/
 backups/*.sql
 backups/logs/*.log
 .env.backup
+ops/
+prisma/seed.js
+prisma/seed-admin.js
