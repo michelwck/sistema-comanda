@@ -3,7 +3,19 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 async function main() {
-    console.log('Seeding database...');
+    // 0) Criar usuário admin inicial (email precisa ser o mesmo do Google)
+    const ADMIN_EMAIL = 'michel.wck@gmail.com';
+
+    await prisma.user.upsert({
+        where: { email: ADMIN_EMAIL },
+        update: { isActive: true, role: 'admin' },
+        create: {
+            email: ADMIN_EMAIL,
+            name: 'Admin',
+            role: 'admin',
+            isActive: true,
+        },
+    });
 
     // 1. Clean up existing data (optional, be careful in prod)
     // await prisma.tabItem.deleteMany({});
@@ -59,7 +71,6 @@ async function main() {
         });
         products.push(product);
     }
-    console.log(`Created ${products.length} products.`);
 
     // 3. Create Clients
     const clientsData = [
@@ -80,7 +91,6 @@ async function main() {
         const client = await prisma.client.create({ data: c });
         clients.push(client);
     }
-    console.log(`Created ${clients.length} clients.`);
 
     // 4. Create Historical Data (Closed Tabs & Fiado)
 
