@@ -25,6 +25,9 @@ class SocketService {
             auth: { token },
         });
 
+        console.log('SOCKET_URL =>', SOCKET_URL);
+        console.log('TOKEN =>', token);
+
         this.socket.on('connect', () => console.log('✅ Socket.io conectado'));
         this.socket.on('disconnect', () => console.log('❌ Socket.io desconectado'));
         this.socket.on('connect_error', (error) => console.error('Erro de conexão Socket.io:', error));

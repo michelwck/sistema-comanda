@@ -37,9 +37,6 @@ const corsOrigin = (origin, callback) => {
 const app = express();
 const httpServer = createServer(app);
 
-console.log('SOCKET_URL =>', SOCKET_URL);
-console.log('TOKEN =>', localStorage.getItem('auth_token'));
-
 const io = new Server(httpServer, {
     cors: {
         origin: corsOrigin,
