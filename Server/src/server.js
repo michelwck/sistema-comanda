@@ -37,6 +37,9 @@ const corsOrigin = (origin, callback) => {
 const app = express();
 const httpServer = createServer(app);
 
+console.log('SOCKET_URL =>', SOCKET_URL);
+console.log('TOKEN =>', localStorage.getItem('auth_token'));
+
 const io = new Server(httpServer, {
     cors: {
         origin: corsOrigin,
@@ -46,9 +49,10 @@ const io = new Server(httpServer, {
 });
 
 io.use((socket, next) => {
+    console.log('SOCKET AUTH:', socket.handshake.auth);
+
     try {
         const authToken = socket.handshake.auth?.token;
-        console.log('SOCKET AUTH:', socket.handshake.auth);
 
         // fallback: Authorization header
         const header = socket.handshake.headers?.authorization;

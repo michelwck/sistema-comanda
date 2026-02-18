@@ -11,17 +11,18 @@ class SocketService {
     connect() {
         if (this.socket?.connected) return this.socket;
 
+        const token = localStorage.getItem('auth_token');
+        if (!token) {
+            console.warn('Socket não conectou: token ausente');
+            return null;
+        }
+
         this.socket = io(SOCKET_URL, {
             transports: ['websocket', 'polling'],
             reconnection: true,
             reconnectionDelay: 1000,
             reconnectionAttempts: 5,
-
-            // ✅ SEMPRE pega o token mais recente
-            auth: (cb) => {
-                const token = localStorage.getItem('auth_token');
-                cb({ token });
-            },
+            auth: { token },
         });
 
         this.socket.on('connect', () => console.log('✅ Socket.io conectado'));
