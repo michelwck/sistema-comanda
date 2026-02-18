@@ -48,6 +48,7 @@ const io = new Server(httpServer, {
 io.use((socket, next) => {
     try {
         const authToken = socket.handshake.auth?.token;
+        console.log('SOCKET AUTH:', socket.handshake.auth);
 
         // fallback: Authorization header
         const header = socket.handshake.headers?.authorization;
@@ -105,8 +106,6 @@ io.on('connection', (socket) => {
         console.log('Cliente desconectado:', socket.id);
     });
 });
-
-console.log('SOCKET AUTH:', socket.handshake.auth);
 
 const PORT = process.env.PORT || 3000;
 
