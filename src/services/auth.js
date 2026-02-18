@@ -54,26 +54,26 @@ export const getCurrentUser = () => {
     }
 };
 
-// Fetch full user details from API
 export const fetchCurrentUser = async () => {
-    // Disable caching to ensure role updates are reflected immediately
-    // const cached = localStorage.getItem('current_user');
-    // if (cached) {
-    //     return JSON.parse(cached);
-    // }
+    const token = getToken();
+    if (!token) return null;
 
     try {
-        const API_URL = import.meta.env.VITE_API_URL || '/api';
-        const BASE_URL = API_URL.replace(/\/api$/, '');
-
-        const response = await fetch(`${BASE_URL}/auth/me`, {
+        // Agora que o Nginx encaminha /auth, use caminho relativo
+        const response = await fetch('/auth/me', {
             headers: {
-                'Authorization': `Bearer ${getToken()}`,
+                Authorization: `Bearer ${token}`,
             },
         });
 
+        // Token inválido/expirado/sem permissão
+        if (response.status === 401 || response.status === 403) {
+            clearToken();
+            return null;
+        }
+
         if (!response.ok) {
-            throw new Error('Failed to fetch user');
+            throw new Error(`Failed to fetch user (${response.status})`);
         }
 
         const data = await response.json();
@@ -81,11 +81,11 @@ export const fetchCurrentUser = async () => {
         return data.user;
     } catch (error) {
         console.error('Error fetching user:', error);
-        // DEBUG: Alert user if fetch fails
-        alert('Erro ao buscar perfil do usuário: ' + error.message);
+        // Sem alert — só retorna null e a tela de login aparece
         return null;
     }
 };
+
 
 // Logout
 export const logout = () => {

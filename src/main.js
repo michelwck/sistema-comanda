@@ -662,6 +662,11 @@ async function initApp() {
 
         // Fetch current user
         const user = await fetchCurrentUser();
+        if (!user) {
+            state.isAuthenticated = false;
+            render();
+            return;
+        }
         state.currentUser = user;
 
         // Initialize Socket
