@@ -14,18 +14,27 @@ import { isAuthenticated, logout, fetchCurrentUser, setToken } from './services/
 
 // Handle Callback (Token parsing from URL)
 if (window.location.pathname === '/callback') {
-    const params = new URLSearchParams(window.location.search);
-    const token = params.get('token');
-    const error = params.get('error');
+    const url = new URL(window.location.href);
+    const token = url.searchParams.get('token');
+    const error = url.searchParams.get('error');
 
     if (token) {
         setToken(token);
-        window.history.replaceState({}, document.title, '/'); // Clear URL without reload
+
+        // Remove token da URL (histórico)
+        url.searchParams.delete('token');
+        url.searchParams.delete('error');
+        window.history.replaceState({}, document.title, url.pathname);
+
+        // Vai pra home e inicia app do zero já autenticado
+        window.location.href = '/';
     } else if (error) {
         alert('Erro no login: ' + error);
+        window.history.replaceState({}, document.title, '/');
         window.location.href = '/';
     }
 }
+
 import { normalizeString } from './utils/helpers.js'
 import { attachDashboardEvents } from './managers/dashboardManager.js'
 import { attachDetailEvents } from './managers/detailManager.js'
@@ -651,13 +660,13 @@ async function initApp() {
 
         state.isAuthenticated = true;
 
-        // Initialize Socket
-        socketService.connect();
-        setupSocketListeners();
-
         // Fetch current user
         const user = await fetchCurrentUser();
         state.currentUser = user;
+
+        // Initialize Socket
+        socketService.connect();
+        setupSocketListeners();
 
         // Fetch Initial Data
         const [tabs, products, clients, categories] = await Promise.all([
