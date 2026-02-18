@@ -103,7 +103,7 @@ app.use(errorHandler);
 
 // Socket.io connection
 io.on('connection', (socket) => {
-    console.log('Cliente conectado:', socket.id);
+    socket.join('tabs:open');
 
     socket.on('disconnect', () => {
         console.log('Cliente desconectado:', socket.id);

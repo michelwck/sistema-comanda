@@ -92,7 +92,7 @@ export const createTab = async (req, res, next) => {
 
         // Emitir evento Socket.io
         const io = req.app.get('io');
-        io.emit('tab:created', tab);
+        io.to('tabs:open').emit('tab:created', tab);
 
         res.status(201).json(tab);
     } catch (error) {
@@ -150,7 +150,7 @@ export const updateTab = async (req, res, next) => {
 
         // Emitir evento Socket.io
         const io = req.app.get('io');
-        io.emit('tab:updated', tab);
+        io.to('tabs:open').emit('tab:updated', tab);
 
         res.json(tab);
     } catch (error) {
@@ -171,7 +171,8 @@ export const deleteTab = async (req, res, next) => {
 
         // Emitir evento Socket.io
         const io = req.app.get('io');
-        io.emit('tab:deleted', { id: parseInt(id) });
+        io.to('tabs:open').emit('tab:deleted', { id: parseInt(id) });
+
         // We still emit 'deleted' so dashboard removes it. 
         // But history view will see it as updated/status change.
 
@@ -231,7 +232,12 @@ export const addTabItem = async (req, res, next) => {
 
         // Emitir evento Socket.io
         const io = req.app.get('io');
-        io.emit('tab:item:added', { tabId: parseInt(id), item, tab: updatedTab });
+        io.to(`tab:${parseInt(id)}`).emit('tab:item:added', {
+            tabId: parseInt(id),
+            item,
+            tab: updatedTab
+        });
+
 
         res.status(201).json(item);
     } catch (error) {
@@ -280,7 +286,12 @@ export const updateTabItem = async (req, res, next) => {
 
         // Emitir evento Socket.io
         const io = req.app.get('io');
-        io.emit('tab:item:updated', { tabId: parseInt(id), item, tab: updatedTab });
+        io.to(`tab:${parseInt(id)}`).emit('tab:item:updated', {
+            tabId: parseInt(id),
+            item,
+            tab: updatedTab
+        });
+
 
         res.json(item);
     } catch (error) {
@@ -323,7 +334,11 @@ export const deleteTabItem = async (req, res, next) => {
 
         // Emitir evento Socket.io
         const io = req.app.get('io');
-        io.emit('tab:item:deleted', { tabId: parseInt(id), itemId: parseInt(itemId), tab: updatedTab });
+        io.to(`tab:${parseInt(id)}`).emit('tab:item:deleted', {
+            tabId: parseInt(id),
+            itemId: parseInt(itemId),
+            tab: updatedTab
+        });
 
         res.status(204).send();
     } catch (error) {

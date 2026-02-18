@@ -384,11 +384,16 @@ document.addEventListener('keydown', (e) => {
         }
 
         if (state.view === 'detail') {
+            const oldTabId = state.selectedTabId;
+
+            socketService.leaveTab(oldTabId); // 🔥 sai da room
+
             state.selectedTabId = null;
             state.view = 'dashboard';
             render();
             return;
         }
+
 
         if (state.view === 'dashboard' && state.searchTerm) {
             state.searchTerm = '';
@@ -552,6 +557,9 @@ document.addEventListener('keydown', (e) => {
                     state.selectedTabId = tab.id;
                     state.view = 'detail';
                     state.detailItemIndex = -1;
+
+                    socketService.joinTab(tab.id); // 🔥 entra na room
+
                     render();
                 }
             }

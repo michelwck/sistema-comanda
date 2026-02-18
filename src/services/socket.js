@@ -8,6 +8,16 @@ class SocketService {
         this.listeners = new Map();
     }
 
+    joinTab(tabId) {
+        if (!this.socket) this.connect();
+        this.socket.emit('tab:join', { tabId });
+    }
+
+    leaveTab(tabId) {
+        if (!this.socket) return;
+        this.socket.emit('tab:leave', { tabId });
+    }
+
     connect() {
         if (this.socket?.connected) return this.socket;
 
@@ -16,9 +26,6 @@ class SocketService {
             console.warn('Socket não conectou: token ausente');
             return null;
         }
-
-        console.log('[socket] SOCKET_URL =', SOCKET_URL);
-        console.log('[socket] token =', localStorage.getItem('auth_token'));
 
         this.socket = io(SOCKET_URL, {
             transports: ['websocket', 'polling'],
