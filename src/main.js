@@ -559,16 +559,39 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+// Render "controlado" para evitar render em rajada
+let renderQueued = false;
+function scheduleRender() {
+    if (renderQueued) return;
+    renderQueued = true;
+
+    // 1 render por ciclo
+    queueMicrotask(() => {
+        renderQueued = false;
+        render();
+    });
+}
+
 // Setup Socket Listeners
 function setupSocketListeners() {
+    // Evita listeners duplicados caso initApp rode mais de uma vez
+    const events = [
+        'tab:created',
+        'tab:updated',
+        'tab:deleted',
+        'tab:item:added',
+        'tab:item:updated',
+        'tab:item:deleted',
+    ];
+    events.forEach(ev => socketService.removeAllListeners(ev));
+
     // 1. Tab Created
     socketService.on('tab:created', (newTab) => {
-        // Prevent duplicate (if this client created it, it might already be in state)
         if (!state.tabs.find(t => t.id === newTab.id)) {
             state.tabs.unshift(newTab);
 
             if (state.view === 'dashboard') {
-                render();
+                scheduleRender();
             }
         }
     });
@@ -576,23 +599,22 @@ function setupSocketListeners() {
     // 2. Tab Updated
     socketService.on('tab:updated', (updatedTab) => {
         const index = state.tabs.findIndex(t => t.id === updatedTab.id);
+
         if (index > -1) {
             state.tabs[index] = updatedTab;
 
             if (state.view === 'dashboard') {
-                render();
+                scheduleRender();
             } else if (state.view === 'detail' && state.selectedTabId === updatedTab.id) {
-                // If viewing this tab, update it
-                render();
+                scheduleRender();
             }
         } else if (updatedTab.status === 'open') {
-            // If we don't have it (maybe it was just re-opened?), add it
             state.tabs.unshift(updatedTab);
-            if (state.view === 'dashboard') render();
+            if (state.view === 'dashboard') scheduleRender();
         }
 
-        // Update history view if active
         if (state.view === 'history') {
+            // History é fetch, não render direto
             fetchHistory(state, render);
         }
     });
@@ -602,15 +624,14 @@ function setupSocketListeners() {
         state.tabs = state.tabs.filter(t => t.id !== id);
 
         if (state.view === 'dashboard') {
-            render();
+            scheduleRender();
         } else if (state.view === 'detail' && state.selectedTabId === id) {
             alert('Esta comanda foi excluída por outro usuário.');
             state.view = 'dashboard';
             state.selectedTabId = null;
-            render();
+            scheduleRender();
         }
 
-        // Update history view if active
         if (state.view === 'history') {
             fetchHistory(state, render);
         }
@@ -618,17 +639,14 @@ function setupSocketListeners() {
 
     // 4. Item Added/Updated/Deleted
     const handleItemUpdate = ({ tabId, tab }) => {
-        // Update local state
         const index = state.tabs.findIndex(t => t.id === tabId);
         if (index > -1) {
-            state.tabs[index] = tab; // backend sends the full updated tab with new total
+            state.tabs[index] = tab;
 
-            // If viewing this tab, re-render to show new item/price
             if (state.view === 'detail' && state.selectedTabId === tabId) {
-                render();
+                scheduleRender();
             } else if (state.view === 'dashboard') {
-                // Update dashboard to show new total if needed
-                render();
+                scheduleRender();
             }
         }
     };
@@ -637,6 +655,7 @@ function setupSocketListeners() {
     socketService.on('tab:item:updated', handleItemUpdate);
     socketService.on('tab:item:deleted', handleItemUpdate);
 }
+
 
 // Attach Login Events
 function attachLoginEvents() {
