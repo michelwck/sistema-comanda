@@ -25,7 +25,9 @@ export function attachProductEvents(state, render) {
         tbody.innerHTML = products.map(product => `
             <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
                 <td style="padding: 1rem;">${product.name}</td>
-                <td style="padding: 1rem; color: var(--color-text-muted);">${product.category}</td>
+                <td style="padding: 1rem; color: var(--color-text-muted);">
+                    ${product.category?.name || (state.categories.find(c => c.id === product.categoryId)?.name) || 'Sem Categoria'}
+                </td>
                 <td style="padding: 1rem; font-weight: 600; color: var(--color-primary);">R$ ${parseFloat(product.price || 0).toFixed(2)}</td>
                 <td style="padding: 1rem; text-align: right;">
                     <button class="btn btn-secondary edit-product-btn" data-id="${product.id}" style="padding: 0.25rem 0.75rem; font-size: 0.8rem;">Editar</button>

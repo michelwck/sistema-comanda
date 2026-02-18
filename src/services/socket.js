@@ -13,11 +13,16 @@ class SocketService {
             return this.socket;
         }
 
+        const token = localStorage.getItem('auth_token');
+
         this.socket = io(SOCKET_URL, {
             transports: ['websocket', 'polling'],
             reconnection: true,
             reconnectionDelay: 1000,
-            reconnectionAttempts: 5
+            reconnectionAttempts: 5,
+            auth: {
+                token
+            }
         });
 
         this.socket.on('connect', () => {

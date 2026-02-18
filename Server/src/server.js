@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
+import jwt from 'jsonwebtoken';
 import passport from 'passport';
 import cookieParser from 'cookie-parser';
 import tabRoutes from './routes/tabs.js';
@@ -17,31 +18,52 @@ import './config/passport.js'; // Initialize Passport config
 
 dotenv.config();
 
+const allowedOrigins = [
+    process.env.FRONTEND_URL,
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'https://zerosetebar.com.br',
+    'https://www.zerosetebar.com.br',
+];
+
+const corsOrigin = (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin) || origin.endsWith('.trycloudflare.com')) {
+        return callback(null, true);
+    }
+    return callback(new Error('Bloqueado pelo CORS'), false);
+};
+
 const app = express();
 const httpServer = createServer(app);
+
 const io = new Server(httpServer, {
-    origin: (origin, callback) => {
-        // Allow requests with no origin (like mobile apps or curl requests)
-        if (!origin) return callback(null, true);
-
-        const allowedOrigins = [
-            process.env.FRONTEND_URL,
-            'http://localhost:5173',
-            'http://127.0.0.1:5173',
-            'https://zerosetebar.com.br',
-            'https://www.zerosetebar.com.br'
-        ];
-
-        if (allowedOrigins.includes(origin) || origin.endsWith('.trycloudflare.com')) {
-            return callback(null, true);
-        }
-
-        return callback(new Error('Bloqueado pelo CORS'), false);
+    cors: {
+        origin: corsOrigin,
+        credentials: true,
+        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     },
 });
 
+io.use((socket, next) => {
+    try {
+        const token = socket.handshake.auth?.token;
+        if (!token) return next(new Error('unauthorized'));
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        socket.userId = decoded.userId;
+        socket.userRole = decoded.role;
+        return next();
+    } catch {
+        return next(new Error('unauthorized'));
+    }
+});
+
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: corsOrigin,
+    credentials: true,
+}));
 app.use(express.json());
 app.use(cookieParser());
 app.use(passport.initialize());

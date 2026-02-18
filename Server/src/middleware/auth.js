@@ -1,7 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '../lib/prisma.js';
 
 export const authMiddleware = async (req, res, next) => {
     try {
@@ -20,7 +18,9 @@ export const authMiddleware = async (req, res, next) => {
         // Get user from database
         const user = await prisma.user.findUnique({
             where: { id: decoded.userId },
+            select: { id: true, role: true, isActive: true, name: true, email: true },
         });
+
 
         if (!user || !user.isActive) {
             return res.status(401).json({ error: 'Usuário não autorizado' });
