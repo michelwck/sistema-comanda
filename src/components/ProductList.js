@@ -35,19 +35,23 @@ export function ProductList(props = {}) {
             <table style="width: 100%; border-collapse: collapse; text-align: left;">
                 <thead>
                     <tr style="background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.05);">
-                        <th style="padding: 1rem; font-weight: 600; color: var(--color-text-muted);">
-                            <div>Nome</div>
-                            <input type="text" id="product-filter-name" placeholder="Buscar..." style="width: 100%; margin-top: 0.5rem; padding: 0.25rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white;">
+                        <th style="padding: 1rem; font-weight: 600; color: var(--color-text-muted); text-align: left; vertical-align: middle;">Nome</th>
+                        <th style="padding: 1rem; font-weight: 600; color: var(--color-text-muted); text-align: left; vertical-align: middle;">Categoria</th>
+                        <th style="padding: 1rem; font-weight: 600; color: var(--color-text-muted); text-align: left; vertical-align: middle;">Preço</th>
+                        <th style="padding: 1rem; text-align: right; vertical-align: middle;">Ações</th>
+                    </tr>
+                    <tr style="background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.05);">
+                         <th style="padding: 0.5rem 1rem;">
+                            <input type="text" id="product-filter-name" placeholder="Buscar..." style="width: 100%; padding: 0.25rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white;">
                         </th>
-                        <th style="padding: 1rem; font-weight: 600; color: var(--color-text-muted);">
-                            <div>Categoria</div>
-                            <select id="product-filter-category" style="width: 100%; margin-top: 0.5rem; padding: 0.25rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white;">
+                        <th style="padding: 0.5rem 1rem;">
+                            <select id="product-filter-category" style="width: 100%; padding: 0.25rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white;">
                                 <option value="">Todas</option>
                                 ${categoryOptions}
                             </select>
                         </th>
-                        <th style="padding: 1rem; font-weight: 600; color: var(--color-text-muted);">Preço</th>
-                        <th style="padding: 1rem; text-align: right;">Ações</th>
+                        <th></th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody id="product-list-body">

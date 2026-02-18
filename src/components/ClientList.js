@@ -17,7 +17,6 @@ export function ClientList(props = {}) {
       <div style="margin-bottom: var(--spacing-md); display: flex; justify-content: space-between; align-items: center;">
         <h2>Clientes</h2>
         <div style="display: flex; gap: 1rem; align-items: center;">
-            <input type="text" id="client-filter-name" placeholder="Buscar cliente..." style="padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: white; min-width: 250px;">
             <button id="new-client-btn" class="btn btn-primary">
             + Novo Cliente
             </button>
@@ -28,10 +27,18 @@ export function ClientList(props = {}) {
         <table style="width: 100%; border-collapse: collapse; text-align: left;">
             <thead>
                 <tr style="background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.05);">
-                    <th style="padding: 1rem; font-weight: 600; color: var(--color-text-muted);">Nome</th>
-                    <th style="padding: 1rem; font-weight: 600; color: var(--color-text-muted);">Email</th>
-                    <th style="padding: 1rem; font-weight: 600; color: var(--color-text-muted);">Telefone</th>
-                    <th style="padding: 1rem; text-align: right;">Ações</th>
+                    <th style="padding: 1rem; font-weight: 600; color: var(--color-text-muted); text-align: left; vertical-align: middle;">Nome</th>
+                    <th style="padding: 1rem; font-weight: 600; color: var(--color-text-muted); text-align: left; vertical-align: middle;">Email</th>
+                    <th style="padding: 1rem; font-weight: 600; color: var(--color-text-muted); text-align: left; vertical-align: middle;">Telefone</th>
+                    <th style="padding: 1rem; text-align: right; vertical-align: middle;">Ações</th>
+                </tr>
+                <tr style="background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <th style="padding: 0.5rem 1rem;">
+                        <input type="text" id="client-filter-name" placeholder="Buscar cliente..." style="width: 100%; padding: 0.25rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.2); color: white;">
+                    </th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody id="client-list-body">
