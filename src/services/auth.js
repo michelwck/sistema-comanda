@@ -87,10 +87,6 @@ export const fetchCurrentUser = async () => {
     }
 };
 
-import socketService from './socket';
-
-// ... existing imports ...
-
 // Logout
 export const logout = () => {
     socketService.disconnect();
