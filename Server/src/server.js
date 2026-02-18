@@ -47,7 +47,14 @@ const io = new Server(httpServer, {
 
 io.use((socket, next) => {
     try {
-        const token = socket.handshake.auth?.token;
+        const authToken = socket.handshake.auth?.token;
+
+        // fallback: Authorization header
+        const header = socket.handshake.headers?.authorization;
+        const headerToken = header?.startsWith('Bearer ') ? header.slice(7) : null;
+
+        const token = authToken || headerToken;
+
         if (!token) return next(new Error('unauthorized'));
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -58,6 +65,7 @@ io.use((socket, next) => {
         return next(new Error('unauthorized'));
     }
 });
+
 
 // Middleware
 app.use(cors({
@@ -97,6 +105,8 @@ io.on('connection', (socket) => {
         console.log('Cliente desconectado:', socket.id);
     });
 });
+
+console.log('SOCKET AUTH:', socket.handshake.auth);
 
 const PORT = process.env.PORT || 3000;
 
