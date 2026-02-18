@@ -17,6 +17,9 @@ class SocketService {
             return null;
         }
 
+        console.log('[socket] SOCKET_URL =', SOCKET_URL);
+        console.log('[socket] token =', localStorage.getItem('auth_token'));
+
         this.socket = io(SOCKET_URL, {
             transports: ['websocket', 'polling'],
             reconnection: true,
@@ -24,9 +27,6 @@ class SocketService {
             reconnectionAttempts: 5,
             auth: { token },
         });
-
-        console.log('SOCKET_URL =>', SOCKET_URL);
-        console.log('TOKEN =>', token);
 
         this.socket.on('connect', () => console.log('✅ Socket.io conectado'));
         this.socket.on('disconnect', () => console.log('❌ Socket.io desconectado'));

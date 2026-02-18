@@ -46,7 +46,9 @@ const io = new Server(httpServer, {
 });
 
 io.use((socket, next) => {
-    console.log('SOCKET AUTH:', socket.handshake.auth);
+    console.log('SOCKET HEADERS AUTH:', socket.handshake.headers?.authorization);
+    console.log('SOCKET AUTH OBJ:', socket.handshake.auth);
+
 
     try {
         const authToken = socket.handshake.auth?.token;
