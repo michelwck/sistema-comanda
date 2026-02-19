@@ -113,12 +113,12 @@ export function attachKeyboardEvents(state, render, getFilteredTabs) {
                     // Arrow Up = Previous Item (Index Decrease)
                     if (state.detailItemIndex === 0) {
                         state.detailItemIndex = -1;
-                        render();
+                        updateDetailSelectionDOM(state.detailItemIndex)
                         if (quickAddSearch) quickAddSearch.focus();
                         return;
                     }
                     state.detailItemIndex = Math.max(state.detailItemIndex - 1, 0);
-                    render();
+                    updateDetailSelectionDOM(state.detailItemIndex)
                     return;
                 }
 
@@ -131,7 +131,7 @@ export function attachKeyboardEvents(state, render, getFilteredTabs) {
 
                         // Check if we are at the bottom (oldest item, max index)
                         state.detailItemIndex = Math.min(state.detailItemIndex + 1, items.length - 1);
-                        render();
+                        updateDetailSelectionDOM(state.detailItemIndex);
                     }
                     return;
                 }
@@ -196,7 +196,7 @@ export function attachKeyboardEvents(state, render, getFilteredTabs) {
                 e.preventDefault();
                 searchInput.blur();
                 state.selectedIndex = 0;
-                render();
+                updateDashboardSelectionDOM(state.selectedIndex);
                 return;
             }
 
@@ -205,17 +205,17 @@ export function attachKeyboardEvents(state, render, getFilteredTabs) {
                     e.preventDefault();
                     if (state.selectedIndex < filteredTabs.length - 1) {
                         state.selectedIndex++;
-                        render();
+                        updateDashboardSelectionDOM(state.selectedIndex);
                     }
                 } else if (e.key === 'ArrowLeft' || (e.key === 'Tab' && e.shiftKey)) {
                     e.preventDefault();
                     if (state.selectedIndex > 0) {
                         state.selectedIndex--;
-                        render();
+                        updateDashboardSelectionDOM(state.selectedIndex);
                     } else {
                         // Back to search
                         state.selectedIndex = 0;
-                        render();
+                        updateDashboardSelectionDOM(state.selectedIndex);
                         if (searchInput) searchInput.focus();
                     }
                 } else if (e.key === 'ArrowDown') {
@@ -223,19 +223,20 @@ export function attachKeyboardEvents(state, render, getFilteredTabs) {
                     // Jump by row (approx 4? or just next)
                     if (state.selectedIndex + 4 < filteredTabs.length) {
                         state.selectedIndex += 4;
-                        render();
+                        updateDashboardSelectionDOM(state.selectedIndex);
                     } else {
                         state.selectedIndex = filteredTabs.length - 1;
-                        render();
+                        updateDashboardSelectionDOM(state.selectedIndex);
+
                     }
                 } else if (e.key === 'ArrowUp') {
                     e.preventDefault();
                     if (state.selectedIndex - 4 >= 0) {
                         state.selectedIndex -= 4;
-                        render();
+                        updateDashboardSelectionDOM(state.selectedIndex);
                     } else {
                         state.selectedIndex = 0;
-                        render();
+                        updateDashboardSelectionDOM(state.selectedIndex);
                         if (searchInput) searchInput.focus();
                     }
                 } else if (e.key === 'Enter') {
@@ -254,4 +255,16 @@ export function attachKeyboardEvents(state, render, getFilteredTabs) {
             }
         }
     });
+}
+
+function updateDashboardSelectionDOM(selectedIndex) {
+    const cards = document.querySelectorAll('.tab-card');
+    cards.forEach((c, i) => {
+        c.classList.toggle('is-selected', i === selectedIndex);
+    });
+}
+
+function updateDetailSelectionDOM(index) {
+    const rows = document.querySelectorAll('.detail-item');
+    rows.forEach((r, i) => r.classList.toggle('is-selected', i === index));
 }
