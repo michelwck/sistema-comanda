@@ -5,6 +5,9 @@ export function attachKeyboardEvents(state, render, getFilteredTabs) {
     document.addEventListener('keydown', (e) => {
         // Block global shortcuts if ANY modal is open
         const openModal = document.querySelector('.modal-overlay:not(.hidden)');
+        console.log('KEY:', e.key, 'view:', state.view, 'openModal:', !!openModal);
+
+
         if (openModal) {
             // If it's Escape, we let it pass to the specific Escape handler below
             if (e.key !== 'Escape' && e.key !== 'Enter') return;
