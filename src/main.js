@@ -12,13 +12,6 @@ import socketService from './services/socket.js'
 import { attachKeyboardEvents } from './managers/keyboardManager.js'
 import { attachGlobalEvents } from './managers/globalEventsManager.js';
 
-// Trata /callback antes de iniciar o app
-if (handleCallback()) {
-    // se tratou callback, ele já redirecionou (não continua)
-} else {
-    initApp();
-}
-
 const app = document.querySelector('#app');
 
 // State Management
@@ -300,3 +293,9 @@ async function initApp() {
         console.log('App Initialized. State:', state);
     }
 }
+
+// Trata callback antes de iniciar o app
+if (!handleCallback()) {
+    initApp();
+}
+
