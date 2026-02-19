@@ -11,38 +11,9 @@ import { renderView, attachViewEvents } from './managers/routeManager.js'
 import socketService from './services/socket.js'
 import { attachKeyboardEvents } from './managers/keyboardManager.js'
 import { attachGlobalEvents } from './managers/globalEventsManager.js';
+import { state } from './state/store.js';
 
 const app = document.querySelector('#app');
-
-// State Management
-let state = {
-    isAuthenticated: false,
-    currentUser: null,
-    view: 'dashboard',
-    selectedTabId: null,
-    searchTerm: '',
-    selectedIndex: 0,
-    quickAddSearch: '',
-    quickAddSelectedIndex: 0,
-    fiadoSelectedClientId: null,
-    fiadoTransactions: [],
-    fiadoSearchTerm: '',
-    tempTab: null, // For viewing details of closed/fiado tabs
-    detailItemIndex: -1,
-    tabs: [],
-    products: [],
-    clients: [],
-    historyTabs: [],
-    historyFilters: {
-        startDate: new Date().toISOString().split('T')[0],
-        endDate: new Date().toISOString().split('T')[0],
-        customer: '',
-        clientId: ''
-    },
-    users: [],
-    categories: [],
-    isSidebarCollapsed: localStorage.getItem('sidebar_collapsed') === 'true'
-};
 
 // Helper: Get filtered tabs based on search term
 function getFilteredTabs() {
