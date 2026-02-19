@@ -3,9 +3,10 @@ import socketService from '../services/socket.js';
 
 export function attachKeyboardEvents(state, render, getFilteredTabs) {
     document.addEventListener('keydown', (e) => {
+        console.log('keydown funcionando:', e.key);
+
         // Block global shortcuts if ANY modal is open
         const openModal = document.querySelector('.modal-overlay:not(.hidden)');
-        console.log('KEY:', e.key, 'view:', state.view, 'openModal:', !!openModal);
 
         if (openModal) {
             // If it's Escape, we let it pass to the specific Escape handler below
@@ -98,7 +99,7 @@ export function attachKeyboardEvents(state, render, getFilteredTabs) {
             }
         }
 
-        if (e.defaultPrevented && e.key !== 'Escape') return;
+        // if (e.defaultPrevented && e.key !== 'Escape') return;
 
         // Detail View Item Navigation (When input not focused)
         if (state.view === 'detail' && state.detailItemIndex !== -1) {
