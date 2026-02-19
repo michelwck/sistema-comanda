@@ -7,7 +7,6 @@ export function attachKeyboardEvents(state, render, getFilteredTabs) {
         const openModal = document.querySelector('.modal-overlay:not(.hidden)');
         console.log('KEY:', e.key, 'view:', state.view, 'openModal:', !!openModal);
 
-
         if (openModal) {
             // If it's Escape, we let it pass to the specific Escape handler below
             if (e.key !== 'Escape' && e.key !== 'Enter') return;
@@ -258,16 +257,17 @@ export function attachKeyboardEvents(state, render, getFilteredTabs) {
             }
         }
     });
-}
 
-function updateDashboardSelectionDOM(selectedIndex) {
-    const cards = document.querySelectorAll('.tab-card');
-    cards.forEach((c, i) => {
-        c.classList.toggle('is-selected', i === selectedIndex);
-    });
-}
+    function updateDashboardSelectionDOM(selectedIndex) {
+        const cards = document.querySelectorAll('.tab-card');
+        cards.forEach((c, i) => {
+            c.classList.toggle('is-selected', i === selectedIndex);
+        });
+    }
 
-function updateDetailSelectionDOM(index) {
-    const rows = document.querySelectorAll('.detail-item');
-    rows.forEach((r, i) => r.classList.toggle('is-selected', i === index));
+    function updateDetailSelectionDOM(index) {
+        const rows = document.querySelectorAll('.detail-item');
+        rows.forEach((r, i) => r.classList.toggle('is-selected', i === index));
+    }
+
 }
