@@ -3,36 +3,21 @@ import { Sidebar } from './components/Sidebar'
 import { AppShell } from './components/Layout.js'
 import { Login } from './components/Login'
 import * as api from './services/api'
-import { isAuthenticated, logout, fetchCurrentUser, setToken } from './services/auth'
-
-// Handle Callback (Token parsing from URL)
-if (window.location.pathname === '/callback') {
-    const url = new URL(window.location.href);
-    const token = url.searchParams.get('token');
-    const error = url.searchParams.get('error');
-
-    if (token) {
-        setToken(token);
-
-        // Remove token da URL (histórico)
-        url.searchParams.delete('token');
-        url.searchParams.delete('error');
-        window.history.replaceState({}, document.title, url.pathname);
-
-        // Vai pra home e inicia app do zero já autenticado
-        window.location.href = '/';
-    } else if (error) {
-        alert('Erro no login: ' + error);
-        window.history.replaceState({}, document.title, '/');
-        window.location.href = '/';
-    }
-}
-
+import { isAuthenticated, fetchCurrentUser } from './services/auth'
+import { handleCallback } from './core/handleCallback.js'
 import { normalizeString } from './utils/helpers.js'
 import { fetchHistory } from './managers/historyManager.js'
 import { renderView, attachViewEvents } from './managers/routeManager.js'
 import socketService from './services/socket.js'
 import { attachKeyboardEvents } from './managers/keyboardManager.js'
+import { attachGlobalEvents } from './managers/globalEventsManager.js';
+
+// Trata /callback antes de iniciar o app
+if (handleCallback()) {
+    // se tratou callback, ele já redirecionou (não continua)
+} else {
+    initApp();
+}
 
 const app = document.querySelector('#app');
 
@@ -135,99 +120,14 @@ function render() {
     }
 
     attachEvents();
-    attachGlobalEvents();
-}
-
-function attachGlobalEvents() {
-    // Sidebar Toggle
-    const toggleBtn = document.querySelector('#sidebar-toggle-btn');
-    if (toggleBtn) {
-        // Clone to remove old listeners
-        const newBtn = toggleBtn.cloneNode(true);
-        if (toggleBtn.parentNode) {
-            toggleBtn.parentNode.replaceChild(newBtn, toggleBtn);
-
-            newBtn.addEventListener('click', () => {
-                const sidebar = document.querySelector('#main-sidebar');
-                if (window.innerWidth <= 768) {
-                    sidebar.classList.toggle('mobile-open');
-                } else {
-                    state.isSidebarCollapsed = !state.isSidebarCollapsed;
-                    localStorage.setItem('sidebar_collapsed', state.isSidebarCollapsed);
-                    if (sidebar) {
-                        sidebar.classList.toggle('collapsed', state.isSidebarCollapsed);
-                    }
-                }
-            });
-        }
-    }
-
-    // Mobile Menu Button (Hamburger)
-    const mobileMenuBtn = document.querySelector('#mobile-menu-btn');
-    if (mobileMenuBtn) {
-        const newMobileBtn = mobileMenuBtn.cloneNode(true);
-        mobileMenuBtn.parentNode.replaceChild(newMobileBtn, mobileMenuBtn);
-
-        newMobileBtn.addEventListener('click', () => {
-            const sidebar = document.querySelector('#main-sidebar');
-            if (sidebar) {
-                sidebar.classList.toggle('mobile-open');
-            }
-        });
-    }
-
-    // Sidebar Navigation
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.addEventListener('click', (e) => {
-            e.preventDefault();
-            const view = item.dataset.view;
-            console.log('Navigating to:', view);
-            if (view) {
-                state.view = view;
-                // Reset states
-                state.searchTerm = '';
-                state.selectedIndex = 0;
-                state.selectedTabId = null;
-                state.fiadoSelectedClientId = null;
-                state.fiadoTransactions = null;
-                if (view === 'history') fetchHistory(state, render);
-                if (window.innerWidth <= 768) {
-                    const sidebar = document.querySelector('#main-sidebar');
-                    if (sidebar) sidebar.classList.remove('mobile-open');
-                }
-                render();
-            }
-        });
-    });
-
-    // Sidebar Collapsibles
-    document.querySelectorAll('.nav-group-title').forEach(title => {
-        title.addEventListener('click', () => {
-            const content = title.nextElementSibling;
-            if (content) {
-                content.classList.toggle('hidden');
-                const arrow = title.querySelector('.arrow');
-                if (arrow) {
-                    arrow.style.transform = content.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
-                }
-            }
-        });
-    });
-
-    // Logout Button
-    const logoutBtn = document.querySelector('#logout-btn');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => {
-            if (confirm('Deseja realmente sair?')) {
-                logout();
-            }
-        });
-    }
 }
 
 function attachEvents() {
     attachViewEvents(state, render, getFilteredTabs);
 }
+
+// Initialize Global Events
+attachGlobalEvents(state, render);
 
 // Initialize Keyboard Manager
 attachKeyboardEvents(state, render, getFilteredTabs);
@@ -400,6 +300,3 @@ async function initApp() {
         console.log('App Initialized. State:', state);
     }
 }
-
-// Initial Render
-initApp();
