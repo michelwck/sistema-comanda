@@ -1,3 +1,4 @@
+import { Page } from './Layout.js';
 
 export function FiadoControl({ clients, selectedClientId, transactions }) {
     // transactions: passed from main state
@@ -111,9 +112,8 @@ export function FiadoControl({ clients, selectedClientId, transactions }) {
         }
     }
 
-    return `
-        <div class="container" style="height: calc(100vh - 1.5rem);">
-            <div class="card" style="display: grid; grid-template-columns: 350px 1fr; gap: 0; padding: 0; height: 100%; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+    const content = `
+            <div class="card" style="display: grid; grid-template-columns: 350px 1fr; gap: 0; padding: 0; height: calc(100vh - 140px); overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
                 <!-- Left Column: Client List -->
                 <div style="border-right: 1px solid rgba(255,255,255,0.1); overflow-y: auto; background: rgba(0,0,0,0.2);">
                     <div style="padding: 1rem; position: sticky; top: 0; background: inherit; backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1);">
@@ -129,7 +129,6 @@ export function FiadoControl({ clients, selectedClientId, transactions }) {
                     ${detailsHtml}
                 </div>
             </div>
-        </div>
 
         <!-- Payment Modal -->
         <div id="fiado-payment-modal" class="modal-overlay hidden">
@@ -179,4 +178,9 @@ export function FiadoControl({ clients, selectedClientId, transactions }) {
             </div>
         </div>
     `;
+
+    return Page({
+        title: 'Controle de Fiado',
+        content
+    });
 }

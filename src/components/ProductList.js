@@ -1,3 +1,5 @@
+import { Page } from './Layout.js';
+
 export function ProductList(props = {}) {
   const { products = [], categories = [] } = props;
 
@@ -22,15 +24,13 @@ export function ProductList(props = {}) {
         </tr>
       `).join('');
 
-  return `
-        <main class="container">
-          <div style="margin-bottom: var(--spacing-md); display: flex; justify-content: space-between; align-items: center;">
-            <h2>Produtos</h2>
-            <button id="new-product-btn" class="btn btn-primary">
-              + Novo Produto
-            </button>
-          </div>
-          
+  const actions = `
+    <button id="new-product-btn" class="btn btn-primary">
+      <span style="margin-right: 8px;">+</span> Novo Produto
+    </button>
+  `;
+
+  const content = `
           <div class="card" style="padding: 0; overflow: hidden;">
             <table style="width: 100%; border-collapse: collapse; text-align: left;">
                 <thead>
@@ -59,7 +59,6 @@ export function ProductList(props = {}) {
                 </tbody>
             </table>
           </div>
-        </main>
 
         <!-- Product Modal -->
         <div id="product-modal" class="modal-overlay hidden">
@@ -90,4 +89,11 @@ export function ProductList(props = {}) {
           </div>
         </div>
       `;
+
+  return Page({
+    title: 'Produtos',
+    actions,
+    content
+  });
 }
+

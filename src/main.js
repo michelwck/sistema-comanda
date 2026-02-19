@@ -1,5 +1,6 @@
 import './style.css'
 import { Sidebar } from './components/Sidebar'
+import { AppShell } from './components/Layout.js'
 import { Login } from './components/Login'
 import * as api from './services/api'
 import { isAuthenticated, logout, fetchCurrentUser, setToken } from './services/auth'
@@ -102,41 +103,36 @@ function render() {
     // 4. Update DOM (Sidebar logic...)
 
     // 4. Update DOM
-    // Ensure App Shell exists
-    if (!document.querySelector('.app-container')) {
-        app.innerHTML = `
-            <div class="app-container">
-                <main class="main-content"></main>
-                <button id="mobile-menu-btn" class="mobile-menu-btn">
-                    <span>☰</span>
-                </button>
-            </div>
-        `;
-    }
-
     const sidebarHtml = Sidebar(state.view, state.currentUser);
-    const existingSidebar = document.querySelector('.sidebar');
 
-    if (existingSidebar) {
-        existingSidebar.outerHTML = sidebarHtml;
-        const newSidebar = document.querySelector('#main-sidebar');
-        if (state.isSidebarCollapsed) {
-            newSidebar.classList.add('collapsed');
-        }
+    // Initial App Shell Render
+    if (!document.querySelector('.app-container')) {
+        app.innerHTML = AppShell(sidebarHtml);
     } else {
-        document.querySelector('.app-container').insertAdjacentHTML('afterbegin', sidebarHtml);
-        const newSidebar = document.querySelector('#main-sidebar');
-        if (state.isSidebarCollapsed) {
-            newSidebar.classList.add('collapsed');
+        // Update Sidebar only if exists
+        const existingSidebar = document.querySelector('#main-sidebar');
+        if (existingSidebar) {
+            existingSidebar.outerHTML = sidebarHtml;
         }
     }
+
+    // Sidebar Collapsed State
+    const currentSidebar = document.querySelector('#main-sidebar');
+    if (state.isSidebarCollapsed && currentSidebar) {
+        currentSidebar.classList.add('collapsed');
+    }
+
     // Fallback if still empty
     if (!contentHtml) {
         contentHtml = `<div style="padding: 2rem; color: orange;"><h2>Debug: Content is Empty</h2><p>View: ${state.view}</p></div>`;
     }
 
-    document.querySelector('.main-content').innerHTML = contentHtml;
-
+    // Render Main Content
+    // AppShell creates #main-content-area
+    const mainContent = document.querySelector('#main-content-area');
+    if (mainContent) {
+        mainContent.innerHTML = contentHtml;
+    }
 
     attachEvents();
     attachGlobalEvents();

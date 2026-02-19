@@ -1,3 +1,5 @@
+import { Page } from './Layout.js';
+
 /**
  * Renders the Category List View
  * @param {Object} props - { categories: Array }
@@ -25,17 +27,16 @@ export function CategoryList(props = {}) {
         </div>
     `).join('') : '<div class="card" style="padding: 2rem; text-align: center; color: var(--color-text-muted);">Nenhuma categoria cadastrada</div>';
 
-    return `
-        <main class="container">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg);">
-                <h2 style="margin: 0;">Categorias de Produtos</h2>
-                <button id="new-category-btn" class="btn btn-primary">+ Nova Categoria</button>
-            </div>
+    const actions = `
+        <button id="new-category-btn" class="btn btn-primary">
+            <span style="margin-right: 8px;">+</span> Nova Categoria
+        </button>
+    `;
 
+    const content = `
             <div id="categories-container">
                 ${categoriesHtml}
             </div>
-        </main>
 
         <!-- New Category Modal -->
         <div id="new-category-modal" class="modal-overlay hidden">
@@ -72,4 +73,10 @@ export function CategoryList(props = {}) {
             </div>
         </div>
     `;
+
+    return Page({
+        title: 'Categorias de Produtos',
+        actions,
+        content
+    });
 }

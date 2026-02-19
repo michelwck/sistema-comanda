@@ -1,10 +1,5 @@
-import { Header } from './Header';
+import { Page } from './Layout.js';
 
-/**
- * Renders the Tab Detail View
- * @param {Object} tab - The tab object to display
- * @returns {string} HTML string
- */
 /**
  * Renders the Tab Detail View
  * @param {Object} props - The props object
@@ -81,41 +76,44 @@ export function TabDetail(props = {}) {
         </div>
   `;
 
-  return `
-    <main class="container">
-      <button class="btn btn-secondary" id="back-btn" style="margin-bottom: var(--spacing-md); padding: 0.5rem 1rem;">
-        ← Voltar
-      </button>
+  // Custom Title with Input for Page Component
+  const titleHtml = `
+    <div style="display: flex; align-items: baseline; gap: 0.5rem; flex: 1;">
+         <span style="color: var(--color-text-muted); font-size: 1rem; font-weight: normal; margin-right: 0.5rem;">#${tab.id}</span>
+         <input 
+            type="text" 
+            id="edit-customer-name" 
+            value="${tab.customer}" 
+            style="font-size: 1.5rem; font-weight: 700; color: var(--color-text-main); background: transparent; border: 1px solid transparent; border-radius: 4px; padding: 0.25rem; width: 100%; outline: none;"
+            ${isReadOnly ? 'disabled' : `
+            onfocus="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.background='rgba(255,255,255,0.05)';" 
+            onblur="this.style.borderColor='transparent'; this.style.background='transparent';"
+            `}
+            placeholder="Nome do Cliente"
+            autocomplete="off"
+            aria-label="Nome do Cliente"
+         >
+    </div>
+  `;
+
+  const actionsHtml = `
+    <div style="display: flex; align-items: center; gap: 1rem;">
+        <div style="text-align: right;">
+            <div style="font-size: 0.8rem; color: var(--color-text-muted);">Total</div>
+            <div style="font-size: 1.25rem; font-weight: 700; color: var(--color-primary);">R$ ${parseFloat(tab.total || 0).toFixed(2)}</div>
+        </div>
+        ${deleteButtonHtml}
+    </div>
+  `;
+
+  const content = `
+      <div style="margin-bottom: var(--spacing-md);">
+           <button class="btn btn-secondary" id="back-btn" style="padding: 0.5rem 1rem;">
+            ← Voltar
+          </button>
+      </div>
 
       <div class="card">
-        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--spacing-md); padding-bottom: var(--spacing-md); border-bottom: 1px solid rgba(255,255,255,0.1);">
-          <div>
-            <div style="display: flex; align-items: baseline; gap: 0.5rem;">
-                <input 
-                    type="text" 
-                    id="edit-customer-name" 
-                    value="${tab.customer}" 
-                    style="font-size: 1.5rem; font-weight: 700; color: var(--color-text-main); background: transparent; border: 1px solid transparent; border-radius: 4px; padding: 0.25rem; width: 100%;"
-                    ${isReadOnly ? 'disabled' : `
-                    onfocus="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.background='rgba(255,255,255,0.05)';" 
-                    onblur="this.style.borderColor='transparent'; this.style.background='transparent';"
-                    `}
-                    placeholder="Nome do Cliente"
-                    autocomplete="off"
-                    aria-label="Nome do Cliente"
-                >
-            </div>
-            <span style="color: var(--color-text-muted);">Comanda #${tab.id} ${isReadOnly ? `(${tab.status === 'deleted' ? 'Excluída' : 'Fechada'})` : ''}</span>
-          </div>
-          <div style="text-align: right; display: flex; align-items: center; gap: 1rem;">
-            <div>
-              <div style="font-size: 0.9rem; color: var(--color-text-muted);">Total</div>
-              <div style="font-size: 1.5rem; font-weight: 700; color: var(--color-primary);">R$ ${parseFloat(tab.total || 0).toFixed(2)}</div>
-            </div>
-            ${deleteButtonHtml}
-          </div>
-        </div>
-
         <div style="margin-bottom: var(--spacing-lg);">
 
           ${quickAddSectionHtml}
@@ -128,9 +126,8 @@ export function TabDetail(props = {}) {
 
         ${footerActionsHtml}
       </div>
-    </main>
 
-    <!-- Modals are still here but won't be triggered if buttons are hidden. We can leave them. -->
+    <!-- Modals -->
     <!-- Add Item Modal -->
     <div id="add-item-modal" class="modal-overlay hidden">
       <div class="modal-content">
@@ -255,4 +252,10 @@ export function TabDetail(props = {}) {
       </div>
     </div>
   `;
+
+  return Page({
+    title: titleHtml,
+    actions: actionsHtml,
+    content
+  });
 }

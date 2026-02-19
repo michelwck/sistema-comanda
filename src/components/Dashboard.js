@@ -1,21 +1,20 @@
 import { TabList } from './TabList';
+import { Page } from './Layout';
 
 export function Dashboard(props = {}) {
   const { tabs, searchTerm = '', selectedIndex = 0, currentUser = null } = props;
 
-  return `
-    <main class="container">
-      <div style="margin-bottom: var(--spacing-md);">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-          <h2>Comandas Ativas</h2>
-          <button id="new-tab-btn" class="btn btn-primary">
-            + Nova Comanda (F6)
-          </button>
-        </div>
-        <input type="text" id="search-comanda" class="input" placeholder="Pesquisar por cliente..." value="${searchTerm}" style="width: 100%;" autocomplete="off" aria-label="Pesquisar comanda">
-      </div>
-      ${TabList(tabs, selectedIndex, currentUser)}
-    </main>
+  const actions = `
+    <button id="new-tab-btn" class="btn btn-primary">
+      + Nova Comanda (F6)
+    </button>
+  `;
+
+  const content = `
+    <div style="margin-bottom: var(--spacing-md);">
+      <input type="text" id="search-comanda" class="input" placeholder="Pesquisar por cliente..." value="${searchTerm}" style="width: 100%;" autocomplete="off" aria-label="Pesquisar comanda">
+    </div>
+    ${TabList(tabs, selectedIndex, currentUser)}
 
     <!-- New Tab Modal -->
     <div id="new-tab-modal" class="modal-overlay hidden">
@@ -34,4 +33,11 @@ export function Dashboard(props = {}) {
       </div>
     </div>
   `;
+
+  return Page({
+    title: 'Comandas Ativas',
+    actions,
+    content
+  });
 }
+

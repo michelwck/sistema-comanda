@@ -1,3 +1,5 @@
+import { Page } from './Layout.js';
+
 export function ClientList(props = {}) {
   const { clients = [] } = props;
   const rows = clients.map(client => `
@@ -12,17 +14,13 @@ export function ClientList(props = {}) {
     </tr>
   `).join('');
 
-  return `
-    <main class="container">
-      <div style="margin-bottom: var(--spacing-md); display: flex; justify-content: space-between; align-items: center;">
-        <h2>Clientes</h2>
-        <div style="display: flex; gap: 1rem; align-items: center;">
-            <button id="new-client-btn" class="btn btn-primary">
-            + Novo Cliente
-            </button>
-        </div>
-      </div>
-      
+  const actions = `
+    <button id="new-client-btn" class="btn btn-primary">
+      <span style="margin-right: 8px;">+</span> Novo Cliente
+    </button>
+  `;
+
+  const content = `
       <div class="card" style="padding: 0; overflow: hidden;">
         <table style="width: 100%; border-collapse: collapse; text-align: left;">
             <thead>
@@ -46,7 +44,6 @@ export function ClientList(props = {}) {
             </tbody>
         </table>
       </div>
-    </main>
 
     <!-- Client Modal -->
     <div id="client-modal" class="modal-overlay hidden">
@@ -74,4 +71,11 @@ export function ClientList(props = {}) {
       </div>
     </div>
   `;
+
+  return Page({
+    title: 'Clientes',
+    actions,
+    content
+  });
 }
+

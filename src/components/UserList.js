@@ -1,12 +1,14 @@
-export function UserList(props = {}) {
-    const { users = [] } = props;
+import { Page } from './Layout.js';
 
-    const rows = users.map(user => `
+export function UserList(props = {}) {
+  const { users = [] } = props;
+
+  const rows = users.map(user => `
     <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
         <td style="padding: 1rem;">
             <div style="display: flex; align-items: center; gap: 0.75rem;">
                 ${user.picture ? `<img src="${user.picture}" style="width: 32px; height: 32px; border-radius: 50%;">` :
-            `<div style="width: 32px; height: 32px; border-radius: 50%; background: var(--color-primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;">${user.name.charAt(0)}</div>`}
+      `<div style="width: 32px; height: 32px; border-radius: 50%; background: var(--color-primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 0.8rem;">${user.name.charAt(0)}</div>`}
                 <div>
                     <div style="font-weight: 500;">${user.name}</div>
                     <div style="font-size: 0.8rem; color: var(--color-text-muted);">${user.email}</div>
@@ -30,17 +32,14 @@ export function UserList(props = {}) {
     </tr>
   `).join('');
 
-    return `
-    <main class="container">
-      <div style="margin-bottom: var(--spacing-md); display: flex; justify-content: space-between; align-items: center;">
-        <div>
-            <h2>Usuários do Sistema</h2>
-            <p style="color: var(--color-text-muted); font-size: 0.9rem; margin-top: 0.25rem;">Gerencie quem tem acesso ao sistema (Login Google)</p>
-        </div>
+  const actions = `
         <button id="new-user-btn" class="btn btn-primary">
-          + Novo Usuário
+          <span style="margin-right: 8px;">+</span> Novo Usuário
         </button>
-      </div>
+    `;
+
+  const content = `
+      <p style="color: var(--color-text-muted); font-size: 0.9rem; margin-bottom: 1.5rem;">Gerencie quem tem acesso ao sistema (Login Google)</p>
       
       <div class="card" style="padding: 0; overflow: hidden;">
         <table style="width: 100%; border-collapse: collapse; text-align: left;">
@@ -57,7 +56,6 @@ export function UserList(props = {}) {
             </tbody>
         </table>
       </div>
-    </main>
 
     <!-- User Modal -->
     <div id="user-modal" class="modal-overlay hidden">
@@ -104,5 +102,11 @@ export function UserList(props = {}) {
         </form>
       </div>
     </div>
-  `;
+    `;
+
+  return Page({
+    title: 'Usuários do Sistema',
+    actions,
+    content
+  });
 }

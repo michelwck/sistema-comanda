@@ -7,6 +7,8 @@
  * @param {Object} props.filters - Current filters state
  * @returns {string} HTML string
  */
+import { Page } from './Layout.js';
+
 export function HistoryList({ historyTabs, clients, filters }) {
 
     const tabsHtml = historyTabs.length > 0 ? historyTabs.map(tab => {
@@ -51,12 +53,8 @@ export function HistoryList({ historyTabs, clients, filters }) {
         `<option value="${client.id}" ${filters.clientId == client.id ? 'selected' : ''}>${client.name}</option>`
     ).join('');
 
-    return `
-    <div class="container" style="height: calc(100vh - 4rem); display: flex; flex-direction: column;">
-        <header style="margin-bottom: 1.5rem;">
-            <h2 style="font-size: 1.5rem; margin-bottom: 1rem;">Histórico de Comandas</h2>
-            
-            <div class="card" style="padding: 1rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; align-items: end;">
+    const content = `
+            <div class="card" style="padding: 1rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; align-items: end; margin-bottom: 1.5rem;">
                 <div>
                     <label style="display: block; margin-bottom: 0.5rem; color: var(--color-text-muted); font-size: 0.9rem;">Data Início</label>
                     <input type="date" id="history-date-start" class="input" value="${filters.startDate || ''}" style="width: 100%;">
@@ -80,9 +78,8 @@ export function HistoryList({ historyTabs, clients, filters }) {
                     <button id="history-filter-btn" class="btn btn-primary" style="width: 100%;">Filtrar</button>
                 </div>
             </div>
-        </header>
         
-        <div class="card" style="flex: 1; padding: 0; overflow: hidden; display: flex; flex-direction: column;">
+        <div class="card" style="flex: 1; padding: 0; overflow: hidden; display: flex; flex-direction: column; min-height: 400px;">
             <div style="padding: 1rem; background: rgba(255,255,255,0.02); border-bottom: 1px solid rgba(255,255,255,0.05); display: grid; grid-template-columns: 2fr 1.5fr 150px 100px 100px 120px; gap: 1rem; font-weight: 600; color: var(--color-text-muted); font-size: 0.9rem;">
                 <div>Nome da Comanda</div>
                 <div>Cliente</div>
@@ -96,6 +93,11 @@ export function HistoryList({ historyTabs, clients, filters }) {
                 ${tabsHtml}
             </div>
         </div>
-    </div>
     `;
+
+    return Page({
+        title: 'Histórico de Comandas',
+        content
+    });
 }
+
