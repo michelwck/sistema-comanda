@@ -12,20 +12,9 @@ import socketService from './services/socket.js'
 import { attachKeyboardEvents } from './managers/keyboardManager.js'
 import { attachGlobalEvents } from './managers/globalEventsManager.js';
 import { state } from './state/store.js';
+import { getFilteredTabs } from './state/selectors.js';
 
 const app = document.querySelector('#app');
-
-// Helper: Get filtered tabs based on search term
-function getFilteredTabs() {
-    // Only show open tabs in dashboard
-    const openTabs = state.tabs.filter(t => t.status === 'open');
-    if (!state.searchTerm) return openTabs;
-    const term = normalizeString(state.searchTerm);
-    return openTabs.filter(t =>
-        normalizeString(t.customer).includes(term) ||
-        t.id.toString().includes(term)
-    );
-}
 
 // Render Function
 function render() {
@@ -43,7 +32,7 @@ function render() {
     let contentHtml = '';
 
     try {
-        contentHtml = renderView(state, getFilteredTabs);
+        contentHtml = renderView(state, getFilteredTabs(state));
     } catch (error) {
         console.error('Render Error:', error);
         contentHtml = `<div style="padding: 2rem; color: red;"><h2>Erro ao renderizar tela</h2><pre>${error.message}\n${error.stack}</pre></div>`;
@@ -87,14 +76,14 @@ function render() {
 }
 
 function attachEvents() {
-    attachViewEvents(state, render, getFilteredTabs);
+    attachViewEvents(state, render, getFilteredTabs(state));
 }
 
 // Initialize Global Events
 attachGlobalEvents(state, render);
 
 // Initialize Keyboard Manager
-attachKeyboardEvents(state, render, getFilteredTabs);
+attachKeyboardEvents(state, render, getFilteredTabs(state));
 
 // Render "controlado" para evitar render em rajada
 let renderQueued = false;
