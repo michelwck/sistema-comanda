@@ -16,6 +16,8 @@ import { getFilteredTabs } from './state/selectors.js';
 
 const app = document.querySelector('#app');
 
+const getTabs = () => getFilteredTabs(state);
+
 // Render Function
 function render() {
     // Check authentication first
@@ -32,7 +34,7 @@ function render() {
     let contentHtml = '';
 
     try {
-        contentHtml = renderView(state, getFilteredTabs(state));
+        contentHtml = renderView(state, getTabs);
     } catch (error) {
         console.error('Render Error:', error);
         contentHtml = `<div style="padding: 2rem; color: red;"><h2>Erro ao renderizar tela</h2><pre>${error.message}\n${error.stack}</pre></div>`;
@@ -76,14 +78,14 @@ function render() {
 }
 
 function attachEvents() {
-    attachViewEvents(state, render, getFilteredTabs(state));
+    attachViewEvents(state, render, getTabs);
 }
 
 // Initialize Global Events
 attachGlobalEvents(state, render);
 
 // Initialize Keyboard Manager
-attachKeyboardEvents(state, render, getFilteredTabs(state));
+attachKeyboardEvents(state, render, getTabs);
 
 // Render "controlado" para evitar render em rajada
 let renderQueued = false;
