@@ -126,6 +126,13 @@ export function attachKeyboardEvents(state, render, getTabs) {
                 else state.detailItemIndex = Math.min(state.detailItemIndex + 1, items.length - 1);
 
                 scheduleKeyboardRender(render);
+
+                // Scroll page on itens
+                setTimeout(() => {
+                    const el = document.querySelector(`.tab-item-row[data-index="${state.detailItemIndex}"]`);
+                    if (el) el.scrollIntoView({ block: 'nearest' });
+                }, 0);
+
                 return;
             }
 
@@ -137,6 +144,12 @@ export function attachKeyboardEvents(state, render, getTabs) {
 
                     const quickAddSearch = document.querySelector('#quick-add-search');
                     if (quickAddSearch) quickAddSearch.focus();
+
+                    // Scroll page on itens
+                    setTimeout(() => {
+                        const el = document.querySelector(`.tab-item-row[data-index="${state.detailItemIndex}"]`);
+                        if (el) el.scrollIntoView({ block: 'nearest' });
+                    }, 0);
 
                     return;
                 }
