@@ -90,6 +90,13 @@ export function attachKeyboardEvents(state, render, getTabs) {
                 state.selectedTabId = null;
                 state.view = 'dashboard';
                 render();
+
+                // foca busca depois do DOM atualizar
+                queueMicrotask(() => {
+                    const searchInput = document.querySelector('#search-comanda');
+                    if (searchInput) searchInput.focus();
+                });
+
                 return;
             }
 
@@ -125,13 +132,12 @@ export function attachKeyboardEvents(state, render, getTabs) {
                 if (state.detailItemIndex === -1) state.detailItemIndex = 0;
                 else state.detailItemIndex = Math.min(state.detailItemIndex + 1, items.length - 1);
 
-                scheduleKeyboardRender(render);
-
-                // Scroll page on itens
                 setTimeout(() => {
                     const el = document.querySelector(`.tab-item-row[data-index="${state.detailItemIndex}"]`);
-                    if (el) el.scrollIntoView({ block: 'nearest' });
+                    if (el) el.scrollIntoView({ block: 'end', behavior: 'auto' });
                 }, 0);
+
+                scheduleKeyboardRender(render);
 
                 return;
             }

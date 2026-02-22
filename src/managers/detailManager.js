@@ -8,6 +8,11 @@ export function attachDetailEvents(state, render) {
             state.selectedTabId = null;
             state.view = 'dashboard';
             render();
+
+            queueMicrotask(() => {
+                const searchInput = document.querySelector('#search-comanda');
+                if (searchInput) searchInput.focus();
+            });
         });
     }
 
