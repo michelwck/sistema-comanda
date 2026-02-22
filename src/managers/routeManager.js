@@ -19,7 +19,7 @@ import { normalizeString } from '../utils/helpers.js';
 export function renderView(state, getFilteredTabs) {
     if (state.view === 'dashboard') {
         return Dashboard({
-            tabs: getTabs(),
+            tabs: getFilteredTabs(),
             selectedIndex: state.selectedIndex,
             searchTerm: state.searchTerm,
             currentUser: state.currentUser
@@ -69,7 +69,7 @@ export function renderView(state, getFilteredTabs) {
 
 export function attachViewEvents(state, render, getFilteredTabs) {
     if (state.view === 'dashboard') {
-        attachDashboardEvents(state, render, getTabs);
+        attachDashboardEvents(state, render, getFilteredTabs);
     } else if (state.view === 'detail') {
         attachDetailEvents(state, render);
     } else if (state.view === 'fiado') {
