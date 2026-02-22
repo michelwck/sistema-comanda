@@ -8,17 +8,22 @@ export function attachKeyboardEvents(state, render, getTabs) {
     if (controller) controller.abort();
     controller = new AbortController();
 
-    // ✅ fallback defensivo (não deixa estourar "is not a function")
+    // Fallback defensivo
     const safeGetTabs = (typeof getTabs === 'function')
         ? getTabs
         : () => (state.tabs ?? []);
 
     document.addEventListener('keydown', (e) => {
+        // Block global shortcuts if ANY modal is open
         const openModal = document.querySelector('.modal-overlay:not(.hidden)');
         if (openModal) {
+            // deixa passar só Escape e Enter (Enter para confirmar em alguns modais)
             if (e.key !== 'Escape' && e.key !== 'Enter') return;
         }
 
+        // --------------------------
+        // Global Shortcuts
+        // --------------------------
         if (e.key === 'F2') {
             e.preventDefault();
             if (state.view === 'dashboard') {
@@ -55,6 +60,7 @@ export function attachKeyboardEvents(state, render, getTabs) {
             return;
         }
 
+        // F para Fiado quando payment modal aberto
         if (e.key.toLowerCase() === 'f') {
             const paymentModal = document.querySelector('#payment-modal:not(.hidden)');
             if (paymentModal) {
@@ -65,6 +71,9 @@ export function attachKeyboardEvents(state, render, getTabs) {
             }
         }
 
+        // --------------------------
+        // ESC: Back / Close Modal
+        // --------------------------
         if (e.key === 'Escape') {
             e.preventDefault();
 
@@ -94,11 +103,125 @@ export function attachKeyboardEvents(state, render, getTabs) {
             return;
         }
 
-        // Dashboard Navigation
+        // ==========================================================
+        // DETAIL VIEW NAVIGATION (↑ ↓ Enter Delete)
+        // ==========================================================
+        if (state.view === 'detail') {
+            // não navega se modal aberto (já filtrado acima, mas garante)
+            if (document.querySelector('.modal-overlay:not(.hidden)')) return;
+
+            const currentTab = state.tabs.find(t => t.id === state.selectedTabId);
+            const items = currentTab?.items || [];
+            if (items.length === 0) return;
+
+            // ↓ seleciona próximo (se -1, começa do 0)
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+
+                if (state.detailItemIndex === -1) {
+                    state.detailItemIndex = 0;
+                } else {
+                    state.detailItemIndex = Math.min(state.detailItemIndex + 1, items.length - 1);
+                }
+
+                scheduleKeyboardRender(render);
+                return;
+            }
+
+            // ↑ seleciona anterior (se chegar no topo, volta para quick search)
+            if (e.key === 'ArrowUp') {
+                e.preventDefault();
+
+                if (state.detailItemIndex <= 0) {
+                    state.detailItemIndex = -1;
+                    scheduleKeyboardRender(render);
+
+                    const quickAddSearch = document.querySelector('#quick-add-search');
+                    if (quickAddSearch) quickAddSearch.focus();
+
+                    return;
+                }
+
+                state.detailItemIndex = Math.max(state.detailItemIndex - 1, 0);
+                scheduleKeyboardRender(render);
+                return;
+            }
+
+            // Enter abre modal de editar item selecionado
+            if (e.key === 'Enter') {
+                // Se não tem item selecionado, não faz nada
+                if (state.detailItemIndex === -1) return;
+
+                e.preventDefault();
+
+                const item = items[state.detailItemIndex];
+                if (!item) return;
+
+                const editModal = document.querySelector('#edit-item-modal');
+                if (!editModal) return;
+
+                const idxInput = document.querySelector('#edit-item-index');
+                const nameInput = document.querySelector('#edit-item-name');
+                const priceInput = document.querySelector('#edit-item-price');
+                const qtyInput = document.querySelector('#edit-item-quantity');
+
+                if (idxInput) idxInput.value = state.detailItemIndex;
+                if (nameInput) nameInput.value = item.name ?? '';
+                if (priceInput) priceInput.value = item.price ?? '';
+                if (qtyInput) qtyInput.value = item.quantity ?? 1;
+
+                editModal.classList.remove('hidden');
+
+                setTimeout(() => {
+                    if (qtyInput) {
+                        qtyInput.focus();
+                        qtyInput.select?.();
+                    }
+                }, 50);
+
+                return;
+            }
+
+            // Delete remove item selecionado
+            if (e.key === 'Delete') {
+                if (state.detailItemIndex === -1) return;
+
+                e.preventDefault();
+
+                const item = items[state.detailItemIndex];
+                if (!item) return;
+
+                if (!confirm(`Remover ${item.name}?`)) return;
+
+                api.deleteTabItem(currentTab.id, item.id)
+                    .then(() => api.getTabById(currentTab.id))
+                    .then(updatedTab => {
+                        const idx = state.tabs.findIndex(t => t.id === updatedTab.id);
+                        if (idx > -1) state.tabs[idx] = updatedTab;
+
+                        // Ajusta índice se apagou o último
+                        const newLen = (state.tabs[idx]?.items || []).length;
+                        if (newLen === 0) state.detailItemIndex = -1;
+                        else if (state.detailItemIndex >= newLen) state.detailItemIndex = newLen - 1;
+
+                        render();
+                    })
+                    .catch(err => alert('Erro ao remover item: ' + err.message));
+
+                return;
+            }
+
+            // Se for detail, não deixa cair no bloco do dashboard
+            return;
+        }
+
+        // ==========================================================
+        // DASHBOARD NAVIGATION (Arrows / Tab / Enter)
+        // ==========================================================
         if (state.view === 'dashboard') {
             if (document.querySelector('.modal-overlay:not(.hidden)')) return;
 
-            const filteredTabs = safeGetTabs(); // ✅ sempre função
+            const filteredTabs = safeGetTabs();
             const searchInput = document.querySelector('#search-comanda');
             const activeElement = document.activeElement;
 
