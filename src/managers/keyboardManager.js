@@ -102,36 +102,35 @@ export function attachKeyboardEvents(state, render, getTabs) {
 
             return;
         }
-
         // ==========================================================
         // DETAIL VIEW NAVIGATION (↑ ↓ Enter Delete)
         // ==========================================================
         if (state.view === 'detail') {
-            // não navega se modal aberto (já filtrado acima, mas garante)
+            // Se algum modal estiver aberto, não navega itens
             if (document.querySelector('.modal-overlay:not(.hidden)')) return;
+
+            // Só captura as teclas que nos interessam, senão deixa seguir
+            const keys = ['ArrowDown', 'ArrowUp', 'Enter', 'Delete'];
+            if (!keys.includes(e.key)) return;
+
+            // ✅ impede scroll / comportamento padrão do browser
+            e.preventDefault();
 
             const currentTab = state.tabs.find(t => t.id === state.selectedTabId);
             const items = currentTab?.items || [];
             if (items.length === 0) return;
 
-            // ↓ seleciona próximo (se -1, começa do 0)
+            // ↓ desce (se estiver -1, começa no 0)
             if (e.key === 'ArrowDown') {
-                e.preventDefault();
-
-                if (state.detailItemIndex === -1) {
-                    state.detailItemIndex = 0;
-                } else {
-                    state.detailItemIndex = Math.min(state.detailItemIndex + 1, items.length - 1);
-                }
+                if (state.detailItemIndex === -1) state.detailItemIndex = 0;
+                else state.detailItemIndex = Math.min(state.detailItemIndex + 1, items.length - 1);
 
                 scheduleKeyboardRender(render);
                 return;
             }
 
-            // ↑ seleciona anterior (se chegar no topo, volta para quick search)
+            // ↑ sobe (se chegar no topo, volta pro quick search)
             if (e.key === 'ArrowUp') {
-                e.preventDefault();
-
                 if (state.detailItemIndex <= 0) {
                     state.detailItemIndex = -1;
                     scheduleKeyboardRender(render);
@@ -147,12 +146,9 @@ export function attachKeyboardEvents(state, render, getTabs) {
                 return;
             }
 
-            // Enter abre modal de editar item selecionado
+            // Enter: abre modal de editar item selecionado
             if (e.key === 'Enter') {
-                // Se não tem item selecionado, não faz nada
                 if (state.detailItemIndex === -1) return;
-
-                e.preventDefault();
 
                 const item = items[state.detailItemIndex];
                 if (!item) return;
@@ -182,11 +178,9 @@ export function attachKeyboardEvents(state, render, getTabs) {
                 return;
             }
 
-            // Delete remove item selecionado
+            // Delete: remove item selecionado
             if (e.key === 'Delete') {
                 if (state.detailItemIndex === -1) return;
-
-                e.preventDefault();
 
                 const item = items[state.detailItemIndex];
                 if (!item) return;
@@ -211,8 +205,7 @@ export function attachKeyboardEvents(state, render, getTabs) {
                 return;
             }
 
-            // Se for detail, não deixa cair no bloco do dashboard
-            return;
+            return; // não deixa cair no dashboard
         }
 
         // ==========================================================
