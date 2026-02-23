@@ -94,7 +94,10 @@ export function attachKeyboardEvents(state, render, getTabs) {
                 // foca busca depois do DOM atualizar
                 queueMicrotask(() => {
                     const searchInput = document.querySelector('#search-comanda');
-                    if (searchInput) searchInput.focus();
+                    if (searchInput) {
+                        searchInput.focus();
+                        searchInput.select();
+                    }
                 });
 
                 return;

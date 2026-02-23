@@ -11,7 +11,10 @@ export function attachDetailEvents(state, render) {
 
             queueMicrotask(() => {
                 const searchInput = document.querySelector('#search-comanda');
-                if (searchInput) searchInput.focus();
+                if (searchInput) {
+                    searchInput.focus();
+                    searchInput.select();
+                }
             });
         });
     }
