@@ -5,7 +5,6 @@ import { Login } from './components/Login'
 import * as api from './services/api'
 import { isAuthenticated, fetchCurrentUser } from './services/auth'
 import { handleCallback } from './core/handleCallback.js'
-import { normalizeString } from './utils/helpers.js'
 import { fetchHistory } from './managers/historyManager.js'
 import { renderView, attachViewEvents } from './managers/routeManager.js'
 import socketService from './services/socket.js'
@@ -17,6 +16,17 @@ import { getFilteredTabs } from './state/selectors.js';
 const app = document.querySelector('#app');
 
 const getTabs = () => getFilteredTabs(state);
+
+let prevView = null;
+
+function focusDashboardSearch(selectAll = true) {
+    queueMicrotask(() => {
+        const el = document.querySelector('#search-comanda');
+        if (!el) return;
+        el.focus();
+        if (selectAll) el.select?.();
+    });
+}
 
 // Render Function
 function render() {
@@ -75,6 +85,12 @@ function render() {
     }
 
     attachEvents();
+
+    // Auto-foco ao ENTRAR no dashboard (sem roubar foco em renders por socket)
+    if (state.view === 'dashboard' && prevView && prevView !== 'dashboard') {
+        focusDashboardSearch(true);
+    }
+    prevView = state.view;
 }
 
 function attachEvents() {
@@ -237,7 +253,7 @@ async function initApp() {
         if (state.currentUser && state.currentUser.role === 'admin') {
             api.getUsers().then(users => {
                 state.users = users;
-                render(); // Re-render to show users link/data
+                scheduleRender(); // Re-render to show users link/data
             }).catch(console.error);
         }
 
