@@ -32,6 +32,7 @@ export function attachDashboardEvents(state, render, getFilteredTabs) {
 
         // Hover to select (improves F2/F5 usability)
         card.addEventListener('mouseenter', () => {
+            if (state.mouseNavEnabled === false) return;
             // Find index of this card in filtered list
             const filtered = getFilteredTabs();
             const index = filtered.findIndex(t => t.id === parseInt(card.dataset.id));

@@ -4,6 +4,8 @@ export const state = {
     currentUser: null,
     view: 'dashboard',
     selectedTabId: null,
+    mouseNavEnabled: true,
+    lastKeyboardAt: 0,
     searchTerm: '',
     selectedIndex: 0,
     quickAddSearch: '',

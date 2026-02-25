@@ -240,6 +240,19 @@ export function attachKeyboardEvents(state, render, getTabs) {
             const searchInput = document.querySelector('#search-comanda');
             const activeElement = document.activeElement;
 
+            // Sempre que usa teclado no dashboard, desliga hover do mouse por um tempo
+            state.mouseNavEnabled = false;
+            state.lastKeyboardAt = Date.now();
+
+            // reabilita depois de 600ms sem teclado
+            clearTimeout(window.__mouseNavTimer);
+            window.__mouseNavTimer = setTimeout(() => {
+                // só reabilita se não teve teclado de novo
+                if (Date.now() - state.lastKeyboardAt >= 600) {
+                    state.mouseNavEnabled = true;
+                }
+            }, 650);
+
             // Enter no campo de busca: abrir a comanda selecionada (geralmente a 1ª)
             if (activeElement === searchInput && e.key === 'Enter') {
                 e.preventDefault();

@@ -78,4 +78,9 @@ export function attachGlobalEvents(state, render) {
             }
         }
     });
+
+    document.addEventListener('mousemove', () => {
+        // se o usuário mexeu o mouse, pode voltar a usar hover
+        state.mouseNavEnabled = true;
+    }, { passive: true });
 }
