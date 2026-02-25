@@ -240,6 +240,23 @@ export function attachKeyboardEvents(state, render, getTabs) {
             const searchInput = document.querySelector('#search-comanda');
             const activeElement = document.activeElement;
 
+            // Enter no campo de busca: abrir a comanda selecionada (geralmente a 1ª)
+            if (activeElement === searchInput && e.key === 'Enter') {
+                e.preventDefault();
+
+                const tab = filteredTabs[state.selectedIndex] || filteredTabs[0];
+                if (tab) {
+                    state.selectedTabId = tab.id;
+                    state.view = 'detail';
+                    state.detailItemIndex = -1;
+
+                    socketService.joinTab(tab.id);
+
+                    render();
+                }
+                return;
+            }
+
             if (activeElement === searchInput && (e.key === 'ArrowDown' || (e.key === 'Tab' && !e.shiftKey))) {
                 e.preventDefault();
                 searchInput.blur();
