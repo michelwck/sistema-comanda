@@ -17,8 +17,12 @@ export function attachKeyboardEvents(state, render, getTabs) {
         // Block global shortcuts if ANY modal is open
         const openModal = document.querySelector('.modal-overlay:not(.hidden)');
         if (openModal) {
-            // deixa passar só Escape e Enter (Enter para confirmar em alguns modais)
+            // quando modal está aberto: só permitir Escape/Enter, e NÃO executar atalhos globais/navegação
             if (e.key !== 'Escape' && e.key !== 'Enter') return;
+
+            // deixa o modal lidar com Enter (botão focado / submit etc.)
+            // e ESC vai ser tratado abaixo (fechar modal)
+            if (e.key === 'Enter') return;
         }
 
         // --------------------------
@@ -89,7 +93,7 @@ export function attachKeyboardEvents(state, render, getTabs) {
 
                 state.selectedTabId = null;
                 state.view = 'dashboard';
-                render();
+                scheduleKeyboardRender(render);
 
                 // foca busca depois do DOM atualizar
                 queueMicrotask(() => {
@@ -106,7 +110,7 @@ export function attachKeyboardEvents(state, render, getTabs) {
             if (state.view === 'dashboard' && state.searchTerm) {
                 state.searchTerm = '';
                 state.selectedIndex = 0;
-                render();
+                scheduleKeyboardRender(render);
                 return;
             }
 
@@ -220,7 +224,7 @@ export function attachKeyboardEvents(state, render, getTabs) {
                         if (newLen === 0) state.detailItemIndex = -1;
                         else if (state.detailItemIndex >= newLen) state.detailItemIndex = newLen - 1;
 
-                        render();
+                        scheduleKeyboardRender(render);
                     })
                     .catch(err => alert('Erro ao remover item: ' + err.message));
 
@@ -265,7 +269,7 @@ export function attachKeyboardEvents(state, render, getTabs) {
 
                     socketService.joinTab(tab.id);
 
-                    render();
+                    scheduleKeyboardRender(render);
                 }
                 return;
             }
@@ -322,7 +326,7 @@ export function attachKeyboardEvents(state, render, getTabs) {
                         state.view = 'detail';
                         state.detailItemIndex = -1;
                         socketService.joinTab(tab.id);
-                        render();
+                        scheduleKeyboardRender(render);
                     }
                 }
             }

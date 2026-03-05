@@ -54,13 +54,6 @@ function attachLoginEvents() {
     }
 }
 
-// Evita attach repetido de view events a cada render
-let viewEventsAttachedForView = null
-function attachEventsOncePerView() {
-    if (viewEventsAttachedForView === state.view) return
-    viewEventsAttachedForView = state.view
-    attachViewEvents(state, scheduleRender, getTabs)
-}
 
 // -----------------------------
 // Socket listeners (idempotente)
@@ -189,7 +182,7 @@ function render() {
     if (mainContent) mainContent.innerHTML = contentHtml
 
     // attach view events de forma controlada (evita duplicar handlers)
-    attachEventsOncePerView()
+    attachViewEvents(state, scheduleRender, getTabs);
 
     // Auto-foco ao ENTRAR no dashboard (não rouba foco em renders por socket)
     if (state.view === 'dashboard' && prevView && prevView !== 'dashboard') {
