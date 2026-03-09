@@ -71,7 +71,7 @@ model Tab {
 model TabItem {
   id        Int      @id @default(autoincrement())
   tabId     Int
-  productId Int
+  productId Int?
   name      String   // Nome do produto no momento da venda
   price     Decimal  @db.Decimal(10, 2)
   quantity  Int      @default(1)
@@ -80,7 +80,7 @@ model TabItem {
   updatedAt DateTime @updatedAt
   
   tab       Tab      @relation(fields: [tabId], references: [id], onDelete: Cascade)
-  product   Product  @relation(fields: [productId], references: [id])
+  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
   
   @@index([tabId])
 }
