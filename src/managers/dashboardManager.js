@@ -69,12 +69,14 @@ export function attachDashboardEvents(state, render, getFilteredTabs) {
             state.selectedIndex = 0;
             render();
 
-            // restaura foco/cursor
-            const newInput = document.querySelector('#search-comanda');
-            if (newInput) {
-                newInput.focus();
-                newInput.setSelectionRange(cursorPosition, cursorPosition);
-            }
+            // restaura foco/cursor após o render assíncrono
+            setTimeout(() => {
+                const newInput = document.querySelector('#search-comanda');
+                if (newInput) {
+                    newInput.focus();
+                    newInput.setSelectionRange(cursorPosition, cursorPosition);
+                }
+            }, 0);
         }, { signal });
     }
 
