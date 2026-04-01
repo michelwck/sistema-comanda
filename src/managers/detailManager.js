@@ -10,6 +10,10 @@ export function attachDetailEvents(state, render) {
     controller = new AbortController();
     const { signal } = controller;
 
+    if (state.selectedTabId) {
+        socketService.joinTab(state.selectedTabId);
+    }
+
     const backBtn = document.querySelector('#back-btn');
     if (backBtn) {
         backBtn.addEventListener('click', () => {
