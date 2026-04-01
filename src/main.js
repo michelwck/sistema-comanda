@@ -118,7 +118,6 @@ function setupSocketListeners() {
     })
 
     const handleItemUpdate = ({ tabId, tab }) => {
-        console.log(`[socket] frontend received tab:item event for tab:${tabId} (items ${tab?.items?.length ?? 0})`);
         const index = state.tabs.findIndex(t => t.id === tabId)
         if (index > -1) {
             state.tabs[index] = tab

@@ -232,8 +232,6 @@ export const addTabItem = async (req, res, next) => {
 
         // Emitir evento Socket.io
         const io = req.app.get('io');
-        const room = io.sockets.adapter.rooms.get(`tab:${parseInt(id)}`);
-        console.log(`[socket] emitting tab:item:added for tab:${id} (room size ${room?.size ?? 0})`);
         io.to(`tab:${parseInt(id)}`).emit('tab:item:added', {
             tabId: parseInt(id),
             item,
@@ -289,8 +287,6 @@ export const updateTabItem = async (req, res, next) => {
 
         // Emitir evento Socket.io
         const io = req.app.get('io');
-        const room = io.sockets.adapter.rooms.get(`tab:${parseInt(id)}`);
-        console.log(`[socket] emitting tab:item:updated for tab:${id} (room size ${room?.size ?? 0})`);
         io.to(`tab:${parseInt(id)}`).emit('tab:item:updated', {
             tabId: parseInt(id),
             item,
@@ -340,8 +336,6 @@ export const deleteTabItem = async (req, res, next) => {
 
         // Emitir evento Socket.io
         const io = req.app.get('io');
-        const room = io.sockets.adapter.rooms.get(`tab:${parseInt(id)}`);
-        console.log(`[socket] emitting tab:item:deleted for tab:${id} (room size ${room?.size ?? 0})`);
         io.to(`tab:${parseInt(id)}`).emit('tab:item:deleted', {
             tabId: parseInt(id),
             itemId: parseInt(itemId),

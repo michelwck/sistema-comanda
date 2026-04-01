@@ -108,9 +108,7 @@ io.on('connection', (socket) => {
     socket.on('tab:join', ({ tabId }) => {
         const normalizedTabId = Number(tabId);
         if (!Number.isInteger(normalizedTabId)) return;
-        console.log(`[socket] server received tab:join for tab:${normalizedTabId}`);
         socket.join(`tab:${normalizedTabId}`);
-        console.log(`[socket] server joined socket ${socket.id} into room tab:${normalizedTabId}`);
     });
 
     socket.on('tab:leave', ({ tabId }) => {
