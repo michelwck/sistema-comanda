@@ -44,6 +44,48 @@ function focusDashboardSearch(selectAll = true) {
     })
 }
 
+function refreshDetailTab() {
+    if (!state.selectedTabId) return Promise.resolve()
+    return api.getTabById(state.selectedTabId)
+        .then(updatedTab => {
+            const idx = state.tabs.findIndex(t => t.id === updatedTab.id)
+            if (idx > -1) {
+                state.tabs[idx] = updatedTab
+            } else if (updatedTab.status === 'open') {
+                state.tabs.unshift(updatedTab)
+            }
+            if (state.view === 'detail') scheduleRender()
+        })
+        .catch(err => console.error('Erro ao refetch detail:', err))
+}
+
+function refreshDashboardTabs() {
+    return api.getTabs({ status: 'open' })
+        .then(tabs => {
+            state.tabs = tabs
+            if (state.view === 'dashboard') scheduleRender()
+        })
+        .catch(err => console.error('Erro ao refetch dashboard tabs:', err))
+}
+
+function handleRecoveryFetch() {
+    if (state.view === 'detail' && state.selectedTabId) {
+        return refreshDetailTab()
+    }
+    return refreshDashboardTabs()
+}
+
+function handleWindowFocus() {
+    if (state.selectedTabId) {
+        socketService.joinTab(state.selectedTabId)
+        if (state.view === 'detail') {
+            refreshDetailTab()
+        }
+    } else if (state.view === 'dashboard') {
+        refreshDashboardTabs()
+    }
+}
+
 function attachLoginEvents() {
     const loginBtn = document.querySelector('#google-login-btn')
     if (!loginBtn) return
@@ -219,27 +261,28 @@ async function loadAdminDataIfNeeded() {
     }
 }
 
-async function initApp() {
-    try {
-        if (!isAuthenticated()) {
-            state.isAuthenticated = false
-            render()
-            return
-        }
+    async function initApp() {
+        try {
+            if (!isAuthenticated()) {
+                state.isAuthenticated = false
+                render()
+                return
+            }
 
-        state.isAuthenticated = true
+            state.isAuthenticated = true
 
-        const user = await fetchCurrentUser()
-        if (!user) {
-            state.isAuthenticated = false
-            render()
-            return
-        }
+            const user = await fetchCurrentUser()
+            if (!user) {
+                state.isAuthenticated = false
+                render()
+                return
+            }
 
-        state.currentUser = user
+            state.currentUser = user
 
-        socketService.connect()
-        setupSocketListeners()
+            socketService.connect()
+            socketService.setRecoveryCallback(handleRecoveryFetch)
+            setupSocketListeners()
 
         await loadInitialData()
         await loadAdminDataIfNeeded()
@@ -265,6 +308,13 @@ async function initApp() {
 // -----------------------------
 attachGlobalEvents(state, scheduleRender)
 attachKeyboardEvents(state, scheduleRender, getTabs)
+
+window.addEventListener('focus', handleWindowFocus)
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+        handleWindowFocus()
+    }
+})
 
 // Trata callback antes de iniciar o app
 if (!handleCallback()) {
