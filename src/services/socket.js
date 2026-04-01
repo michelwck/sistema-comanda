@@ -8,6 +8,7 @@ class SocketService {
         this.listeners = new Map()
         this.currentTabId = null
         this.recoveryCallback = null
+        this.wasConnected = false
     }
 
     ensureConnected() {
@@ -50,12 +51,19 @@ class SocketService {
             transports: ['websocket', 'polling'],
             reconnection: true,
             reconnectionDelay: 1000,
-            reconnectionAttempts: 5,
+            reconnectionAttempts: Infinity,
             auth: { token },
         })
 
-        this.socket.on('connect', () => console.log('? Socket.io conectado'))
-        this.socket.on('disconnect', () => console.log('? Socket.io desconectado'))
+        this.socket.on('connect', () => {
+             console.log('🟢 Socket.io conectado')
+             if (this.wasConnected) {
+                 this.handleReconnect()
+             }
+             this.wasConnected = true
+        })
+
+        this.socket.on('disconnect', () => console.log('🔴 Socket.io desconectado'))
         this.socket.on('connect_error', (error) =>
             console.error('Erro de conexão Socket.io:', error)
         )
@@ -68,6 +76,7 @@ class SocketService {
         this.socket.disconnect()
         this.socket = null
         this.listeners.clear()
+        this.wasConnected = false
     }
 
     on(event, callback) {
@@ -101,7 +110,9 @@ class SocketService {
     handleReconnect() {
         if (!this.socket) return
         this.restoreRooms()
-        if (this.socket.recovered === false && typeof this.recoveryCallback === 'function') {
+        // No mobile, sempre que reconectar, vamos refazer fetch do estado atual,
+        // garantindo que itens adicionados offline por outros devices apareçam
+        if (typeof this.recoveryCallback === 'function') {
             this.recoveryCallback()
         }
     }
