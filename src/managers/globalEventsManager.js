@@ -1,6 +1,7 @@
 // src/managers/globalEventsManager.js
 import { logout } from '../services/auth.js';
 import { fetchHistory } from './historyManager.js';
+import socketService from '../services/socket.js';
 
 let isBound = false;
 
@@ -43,6 +44,9 @@ export function attachGlobalEvents(state, render) {
             e.preventDefault();
             const view = navItem.dataset.view;
             if (!view) return;
+            if (state.view === 'detail' && state.selectedTabId !== null) {
+                socketService.leaveTab(state.selectedTabId);
+            }
 
             state.view = view;
             state.searchTerm = '';

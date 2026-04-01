@@ -14,14 +14,19 @@ class SocketService {
     }
 
     joinTab(tabId) {
+        const normalizedTabId = Number(tabId)
+        if (!Number.isInteger(normalizedTabId)) return
+
         const s = this.ensureConnected()
         if (!s) return
-        s.emit('tab:join', { tabId })
+        s.emit('tab:join', { tabId: normalizedTabId })
     }
 
     leaveTab(tabId) {
+        const normalizedTabId = Number(tabId)
+        if (!Number.isInteger(normalizedTabId)) return
         if (!this.socket) return
-        this.socket.emit('tab:leave', { tabId })
+        this.socket.emit('tab:leave', { tabId: normalizedTabId })
     }
 
     connect() {

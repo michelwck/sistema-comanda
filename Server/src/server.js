@@ -105,6 +105,18 @@ app.use(errorHandler);
 io.on('connection', (socket) => {
     socket.join('tabs:open');
 
+    socket.on('tab:join', ({ tabId }) => {
+        const normalizedTabId = Number(tabId);
+        if (!Number.isInteger(normalizedTabId)) return;
+        socket.join(`tab:${normalizedTabId}`);
+    });
+
+    socket.on('tab:leave', ({ tabId }) => {
+        const normalizedTabId = Number(tabId);
+        if (!Number.isInteger(normalizedTabId)) return;
+        socket.leave(`tab:${normalizedTabId}`);
+    });
+
     socket.on('disconnect', () => {
         console.log('Cliente desconectado:', socket.id);
     });

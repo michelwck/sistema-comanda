@@ -1,5 +1,6 @@
 import * as api from '../services/api.js';
 import { normalizeString } from '../utils/helpers.js';
+import socketService from '../services/socket.js';
 
 export function fetchHistory(state, render) {
     const { startDate, endDate, customer, clientId } = state.historyFilters;
@@ -85,6 +86,7 @@ export function attachHistoryEvents(state, render) {
             // Check if tab is already in current list to get quick access, or fetch it
             // Since we clicked on it, we probably want to load it fully?
             // The existing logic just set selection and changed view.
+            socketService.joinTab(id);
             state.selectedTabId = id;
             state.view = 'detail';
             state.detailItemIndex = -1;

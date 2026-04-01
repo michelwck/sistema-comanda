@@ -1,4 +1,5 @@
 import * as api from '../services/api.js';
+import socketService from '../services/socket.js';
 
 let controller = null;
 
@@ -30,6 +31,7 @@ export function attachDashboardEvents(state, render, getFilteredTabs) {
             // open detail
             const id = parseInt(card.dataset.id);
             if (!isNaN(id)) {
+                socketService.joinTab(id);
                 state.selectedTabId = id;
                 state.view = 'detail';
                 state.detailItemIndex = -1;
@@ -106,7 +108,6 @@ export function attachDashboardEvents(state, render, getFilteredTabs) {
 
             const customerEl = document.querySelector('#new-tab-customer');
             const customer = customerEl?.value;
-
             if (!customer) return;
 
             api.createTab({ customer })
@@ -114,11 +115,12 @@ export function attachDashboardEvents(state, render, getFilteredTabs) {
                     modal?.classList.add('hidden');
 
                     // deixa socket evitar duplicar na lista
+                    socketService.joinTab(newTab.id);
                     state.selectedTabId = newTab.id;
                     state.view = 'detail';
                     state.detailItemIndex = -1;
 
-                    // pequeno delay ok, mas render já está seguro
+                    // pequeno delay ok, mas render ja esta seguro
                     setTimeout(() => render(), 100);
                 })
                 .catch(err => alert('Erro ao criar comanda: ' + err.message));

@@ -105,6 +105,7 @@ function setupSocketListeners() {
         if (state.view === 'dashboard') {
             scheduleRender()
         } else if (state.view === 'detail' && state.selectedTabId === id) {
+            socketService.leaveTab(id)
             alert('Esta comanda foi excluída por outro usuário.')
             state.view = 'dashboard'
             state.selectedTabId = null
@@ -247,7 +248,7 @@ async function initApp() {
     } catch (error) {
         console.error('Erro ao inicializar:', error)
 
-        if (String(error?.message || '').includes('autenticado')) {
+        if (String(error?.message || ').includes('autenticado')) {
             state.isAuthenticated = false
             render()
             return
@@ -269,3 +270,4 @@ attachKeyboardEvents(state, scheduleRender, getTabs)
 if (!handleCallback()) {
     initApp()
 }
+

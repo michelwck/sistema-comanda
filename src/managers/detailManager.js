@@ -1,5 +1,6 @@
 import * as api from '../services/api.js';
 import { normalizeString } from '../utils/helpers.js';
+import socketService from '../services/socket.js';
 
 let controller = null;
 
@@ -12,6 +13,7 @@ export function attachDetailEvents(state, render) {
     const backBtn = document.querySelector('#back-btn');
     if (backBtn) {
         backBtn.addEventListener('click', () => {
+            socketService.leaveTab(state.selectedTabId);
             state.selectedTabId = null;
             state.view = 'dashboard';
             render();
@@ -35,6 +37,7 @@ export function attachDetailEvents(state, render) {
             if (confirm(`Deseja excluir a comanda #${currentTab.id} de ${currentTab.customer}?`)) {
                 api.deleteTab(currentTab.id)
                     .then(() => {
+                        socketService.leaveTab(currentTab.id);
                         state.tabs = state.tabs.filter(t => t.id !== currentTab.id);
                         state.selectedTabId = null;
                         state.view = 'dashboard';
@@ -87,6 +90,7 @@ export function attachDetailEvents(state, render) {
                             const paymentModal = document.querySelector('#payment-modal');
                             paymentModal?.classList.add('hidden');
 
+                            socketService.leaveTab(oldId);
                             state.tabs = state.tabs.filter(t => t.id !== oldId);
                             state.selectedTabId = null;
                             state.view = 'dashboard';
@@ -211,20 +215,18 @@ export function attachDetailEvents(state, render) {
             const valueInput = document.querySelector('#payment-value');
             const value = valueInput ? parseFloat(valueInput.value) : 0;
             if (!(value > 0)) return;
-
             const oldId = state.selectedTabId;
 
             api.updateTab(oldId, { status: 'paid', totalPaid: value, paymentMethod: 'cash' })
                 .then(() => {
                     paymentModal?.classList.add('hidden');
 
-                    // remove da lista “open”
+                    socketService.leaveTab(oldId);
                     state.tabs = state.tabs.filter(t => t.id !== oldId);
 
                     state.selectedTabId = null;
                     state.view = 'dashboard';
 
-                    // garante lista correta
                     return api.getTabs().then(tabs => {
                         state.tabs = tabs;
                         render();

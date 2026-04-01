@@ -237,6 +237,7 @@ export const addTabItem = async (req, res, next) => {
             item,
             tab: updatedTab
         });
+        io.to('tabs:open').emit('tab:updated', updatedTab);
 
 
         res.status(201).json(item);
@@ -291,6 +292,7 @@ export const updateTabItem = async (req, res, next) => {
             item,
             tab: updatedTab
         });
+        io.to('tabs:open').emit('tab:updated', updatedTab);
 
 
         res.json(item);
@@ -339,6 +341,7 @@ export const deleteTabItem = async (req, res, next) => {
             itemId: parseInt(itemId),
             tab: updatedTab
         });
+        io.to('tabs:open').emit('tab:updated', updatedTab);
 
         res.status(204).send();
     } catch (error) {
