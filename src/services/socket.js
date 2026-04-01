@@ -19,6 +19,7 @@ class SocketService {
 
         const s = this.ensureConnected()
         if (!s) return
+        console.log(`[socket] emitting tab:join for tab:${normalizedTabId}`)
         s.emit('tab:join', { tabId: normalizedTabId })
     }
 
@@ -26,6 +27,7 @@ class SocketService {
         const normalizedTabId = Number(tabId)
         if (!Number.isInteger(normalizedTabId)) return
         if (!this.socket) return
+        console.log(`[socket] emitting tab:leave for tab:${normalizedTabId}`)
         this.socket.emit('tab:leave', { tabId: normalizedTabId })
     }
 

@@ -11,6 +11,7 @@ export function attachDetailEvents(state, render) {
     const { signal } = controller;
 
     if (state.selectedTabId) {
+        console.log(`[detail] joining tab:${state.selectedTabId}`);
         socketService.joinTab(state.selectedTabId);
     }
 
