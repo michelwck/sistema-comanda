@@ -257,8 +257,9 @@ function render() {
     // attach view events de forma controlada (evita duplicar handlers)
     attachViewEvents(state, scheduleRender, getTabs);
 
-    // Auto-foco ao ENTRAR no dashboard (não rouba foco em renders por socket)
+    // Auto-foco e refetch limpo ao ENTRAR no dashboard (evita dados stale caso venha de outra view off-line)
     if (state.view === 'dashboard' && prevView && prevView !== 'dashboard') {
+        refreshDashboardTabs()
         focusDashboardSearch(true)
     }
     prevView = state.view
