@@ -15,6 +15,7 @@ async function fetchAPI(endpoint, options = {}) {
             ...(token && { 'Authorization': `Bearer ${token}` }),
             ...options.headers
         },
+        cache: 'no-store',
         ...options
     };
 

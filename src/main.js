@@ -45,30 +45,46 @@ function focusDashboardSearch(selectAll = true) {
 }
 
 function refreshDetailTab() {
-    if (!state.selectedTabId) return Promise.resolve()
+    console.log('[detail] refreshDetailTab start')
+    if (!state.selectedTabId) {
+        console.log('[detail] refreshDetailTab end (no tab selected)')
+        return Promise.resolve()
+    }
     return api.getTabById(state.selectedTabId)
         .then(updatedTab => {
+            console.log(`[api] fetched tab ${updatedTab.id} successfully`)
             const idx = state.tabs.findIndex(t => t.id === updatedTab.id)
             if (idx > -1) {
                 state.tabs[idx] = updatedTab
             } else if (updatedTab.status === 'open') {
                 state.tabs.unshift(updatedTab)
             }
-            if (state.view === 'detail') scheduleRender()
+            if (state.view === 'detail') {
+                console.log(`[render] scheduled rerender for detail tab ${updatedTab.id}`)
+                scheduleRender()
+            }
+            console.log('[detail] refreshDetailTab end')
         })
-        .catch(err => console.error('Erro ao refetch detail:', err))
+        .catch(err => console.error('[detail] Erro ao refetch detail:', err))
 }
 
 function refreshDashboardTabs() {
+    console.log('[dashboard] refreshDashboardTabs start')
     return api.getTabs({ status: 'open' })
         .then(tabs => {
+            console.log(`[api] fetched ${tabs.length} tabs for dashboard successfully`)
             state.tabs = tabs
-            if (state.view === 'dashboard') scheduleRender()
+            if (state.view === 'dashboard') {
+                console.log('[render] scheduled rerender for dashboard')
+                scheduleRender()
+            }
+            console.log('[dashboard] refreshDashboardTabs end')
         })
-        .catch(err => console.error('Erro ao refetch dashboard tabs:', err))
+        .catch(err => console.error('[dashboard] Erro ao refetch dashboard tabs:', err))
 }
 
 function handleRecoveryFetch() {
+    console.log('[recovery] handleRecoveryFetch started', { view: state.view, selectedTabId: state.selectedTabId })
     if (state.view === 'detail' && state.selectedTabId) {
         return refreshDetailTab()
     }
@@ -125,7 +141,21 @@ function setupSocketListeners() {
     })
 
     socketService.on('tab:updated', (updatedTab) => {
+        console.log(`[socket] tab:updated recebido para aba ${updatedTab.id}`, updatedTab.status)
         const index = state.tabs.findIndex(t => t.id === updatedTab.id)
+
+        // Objective 2 - UX da comanda finalizada
+        if (state.view === 'detail' && state.selectedTabId === updatedTab.id) {
+            if (updatedTab.status !== 'open') {
+                // Comanda não está mais aberta, expular usuário
+                alert(`Esta comanda foi finalizada (${updatedTab.status}) em outro dispositivo.`)
+                socketService.leaveTab(updatedTab.id)
+                state.view = 'dashboard'
+                state.selectedTabId = null
+                scheduleRender()
+                return // pára o fluxo atual aqui
+            }
+        }
 
         if (index > -1) {
             state.tabs[index] = updatedTab
@@ -309,14 +339,18 @@ async function loadAdminDataIfNeeded() {
 attachGlobalEvents(state, scheduleRender)
 attachKeyboardEvents(state, scheduleRender, getTabs)
 
-window.addEventListener('focus', handleWindowFocus)
+window.addEventListener('focus', () => {
+    console.log('[network] window focus fired')
+    handleWindowFocus()
+})
 document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
+        console.log('[network] visibilitychange (visible) fired')
         handleWindowFocus()
     }
 })
 window.addEventListener('online', () => {
-    console.log('🌐 Navegador detectou volta da internet (online event). Forçando sync imediato.')
+    console.log('[network] online event fired')
     handleRecoveryFetch()
 })
 
