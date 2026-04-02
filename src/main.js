@@ -91,6 +91,31 @@ function handleRecoveryFetch() {
     return refreshDashboardTabs()
 }
 
+let pollingInterval = null;
+
+function setupPolling() {
+    if (pollingInterval) {
+        clearInterval(pollingInterval);
+        pollingInterval = null;
+    }
+
+    if (document.hidden) return; // Do not poll when page is hidden
+
+    if (state.view === 'dashboard') {
+        pollingInterval = setInterval(() => {
+            if (!document.hidden && state.view === 'dashboard') {
+                refreshDashboardTabs();
+            }
+        }, 15000); // 15 seconds
+    } else if (state.view === 'detail' && state.selectedTabId) {
+        pollingInterval = setInterval(() => {
+            if (!document.hidden && state.view === 'detail' && state.selectedTabId) {
+                refreshDetailTab();
+            }
+        }, 10000); // 10 seconds
+    }
+}
+
 function handleWindowFocus() {
     if (state.selectedTabId) {
         socketService.joinTab(state.selectedTabId)
@@ -257,11 +282,22 @@ function render() {
     // attach view events de forma controlada (evita duplicar handlers)
     attachViewEvents(state, scheduleRender, getTabs);
 
-    // Auto-foco e refetch limpo ao ENTRAR no dashboard (evita dados stale caso venha de outra view off-line)
-    if (state.view === 'dashboard' && prevView && prevView !== 'dashboard') {
-        refreshDashboardTabs()
-        focusDashboardSearch(true)
+    // Gatilhos de transição de tela: antes de exibir a versão final preenchida, mandamos buscar a nova versão
+    if (state.view !== prevView) {
+        if (prevView !== null) { // Evita double fetch no primeiro load
+            if (state.view === 'dashboard') {
+                refreshDashboardTabs()
+                focusDashboardSearch(true)
+            } else if (state.view === 'detail') {
+                refreshDetailTab()
+            }
+        }
+        setupPolling()
+    } else if (prevView === null) {
+        // Primeira renderização
+        setupPolling()
     }
+    
     prevView = state.view
 }
 
@@ -348,6 +384,10 @@ document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
         console.log('[network] visibilitychange (visible) fired')
         handleWindowFocus()
+        setupPolling()
+    } else {
+        if (pollingInterval) clearInterval(pollingInterval)
+        pollingInterval = null
     }
 })
 window.addEventListener('online', () => {
