@@ -291,7 +291,7 @@ async function loadAdminDataIfNeeded() {
     } catch (error) {
         console.error('Erro ao inicializar:', error)
 
-        if (String(error?.message || ').includes('autenticado')) {
+        if (String(error?.message || '').includes('autenticado')) {
             state.isAuthenticated = false
             render()
             return
@@ -314,6 +314,10 @@ document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
         handleWindowFocus()
     }
+})
+window.addEventListener('online', () => {
+    console.log('🌐 Navegador detectou volta da internet (online event). Forçando sync imediato.')
+    handleRecoveryFetch()
 })
 
 // Trata callback antes de iniciar o app

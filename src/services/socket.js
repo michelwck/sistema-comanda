@@ -58,9 +58,15 @@ class SocketService {
         this.socket.on('connect', () => {
              console.log('🟢 Socket.io conectado')
              if (this.wasConnected) {
-                 this.handleReconnect()
+                 // Fallback: se o evento 'reconnect' do manager falhar, chamamos por precaução
+                 setTimeout(() => this.handleReconnect(), 500)
              }
              this.wasConnected = true
+        })
+
+        this.socket.io.on('reconnect', (attempt) => {
+             console.log(`🔄 Socket.io reconectado via manager após ${attempt} tentativas`)
+             setTimeout(() => this.handleReconnect(), 500)
         })
 
         this.socket.on('disconnect', () => console.log('🔴 Socket.io desconectado'))
