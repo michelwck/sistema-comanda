@@ -83,47 +83,11 @@ function refreshDashboardTabs() {
         .catch(err => console.error('[dashboard] Erro ao refetch dashboard tabs:', err))
 }
 
-function handleRecoveryFetch() {
-    console.log('[recovery] handleRecoveryFetch started', { view: state.view, selectedTabId: state.selectedTabId })
-    if (state.view === 'detail' && state.selectedTabId) {
-        return refreshDetailTab()
-    }
-    return refreshDashboardTabs()
-}
-
-let pollingInterval = null;
-
-function setupPolling() {
-    if (pollingInterval) {
-        clearInterval(pollingInterval);
-        pollingInterval = null;
-    }
-
-    if (document.hidden) return; // Do not poll when page is hidden
-
-    if (state.view === 'dashboard') {
-        pollingInterval = setInterval(() => {
-            if (!document.hidden && state.view === 'dashboard') {
-                refreshDashboardTabs();
-            }
-        }, 15000); // 15 seconds
-    } else if (state.view === 'detail' && state.selectedTabId) {
-        pollingInterval = setInterval(() => {
-            if (!document.hidden && state.view === 'detail' && state.selectedTabId) {
-                refreshDetailTab();
-            }
-        }, 10000); // 10 seconds
-    }
-}
+// A sincronização fina manual foi abandonada em favor da restauração de sessão em recargas offline
 
 function handleWindowFocus() {
     if (state.selectedTabId) {
         socketService.joinTab(state.selectedTabId)
-        if (state.view === 'detail') {
-            refreshDetailTab()
-        }
-    } else if (state.view === 'dashboard') {
-        refreshDashboardTabs()
     }
 }
 
@@ -292,10 +256,6 @@ function render() {
                 refreshDetailTab()
             }
         }
-        setupPolling()
-    } else if (prevView === null) {
-        // Primeira renderização
-        setupPolling()
     }
     
     prevView = state.view
@@ -348,11 +308,36 @@ async function loadAdminDataIfNeeded() {
             state.currentUser = user
 
             socketService.connect()
-            socketService.setRecoveryCallback(handleRecoveryFetch)
             setupSocketListeners()
 
         await loadInitialData()
         await loadAdminDataIfNeeded()
+
+        // Restaura contexto caso a página venha de um auto-reload de rede
+        if (sessionStorage.getItem('needs_reload') === 'true') {
+            sessionStorage.removeItem('needs_reload')
+            const savedView = sessionStorage.getItem('saved_view')
+            const savedTabId = sessionStorage.getItem('saved_tab_id')
+            
+            if (savedView === 'detail' && savedTabId) {
+                // Checa se a comanda ainda estava listada como 'open' no banco
+                const tabStillExists = state.tabs.find(t => String(t.id) === String(savedTabId))
+                if (tabStillExists) {
+                    state.view = 'detail'
+                    state.selectedTabId = Number(savedTabId)
+                    socketService.joinTab(state.selectedTabId)
+                } else {
+                    alert('Conexão restabelecida.\nA comanda que você visualizava foi finalizada, paga ou removida em outro terminal.')
+                    state.view = 'dashboard'
+                    state.selectedTabId = null
+                }
+            } else if (savedView === 'dashboard') {
+                state.view = 'dashboard'
+            }
+            
+            sessionStorage.removeItem('saved_view')
+            sessionStorage.removeItem('saved_tab_id')
+        }
 
         render()
     } catch (error) {
@@ -384,15 +369,37 @@ document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible') {
         console.log('[network] visibilitychange (visible) fired')
         handleWindowFocus()
-        setupPolling()
-    } else {
-        if (pollingInterval) clearInterval(pollingInterval)
-        pollingInterval = null
     }
 })
+
+let offlineTimeout = null;
+
+window.addEventListener('offline', () => {
+    console.log('[network] offline event fired. Iniciando contador de tolerância...')
+    offlineTimeout = setTimeout(() => {
+        console.log('[network] offline restrito (> 4s). Preparando contexto para reload.')
+        sessionStorage.setItem('needs_reload', 'true')
+        if (state.view) sessionStorage.setItem('saved_view', state.view)
+        if (state.selectedTabId) sessionStorage.setItem('saved_tab_id', state.selectedTabId)
+    }, 4000) // 4s timeout blocks fast Wi-Fi/4G drops
+})
+
 window.addEventListener('online', () => {
     console.log('[network] online event fired')
-    handleRecoveryFetch()
+    if (offlineTimeout) {
+        clearTimeout(offlineTimeout)
+        offlineTimeout = null
+    }
+
+    if (sessionStorage.getItem('needs_reload') === 'true') {
+        const toast = document.createElement('div');
+        toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#10b981;color:white;padding:12px 24px;border-radius:8px;z-index:9999;font-family:sans-serif;box-shadow:0 4px 12px rgba(0,0,0,0.15);font-weight:600;';
+        toast.textContent = 'Conexão restabelecida. Atualizando sistema...';
+        document.body.appendChild(toast);
+
+        // Retardar reload marginalmente para o toast surgir na UI antes do blank.
+        setTimeout(() => window.location.reload(), 1500);
+    }
 })
 
 // Trata callback antes de iniciar o app
