@@ -19,6 +19,58 @@ const getTabs = () => getFilteredTabs(state)
 let prevView = null
 
 // -----------------------------
+// Hash Routing
+// -----------------------------
+function syncHashWithState() {
+    let desiredHash = '';
+    if (state.view === 'dashboard') desiredHash = '#/dashboard';
+    else if (state.view === 'detail' && state.selectedTabId) desiredHash = `#/tabs/${state.selectedTabId}`;
+    else if (state.view === 'history') desiredHash = '#/history';
+    else if (state.view === 'fiado') desiredHash = '#/fiado';
+    else if (state.view === 'fiado-detail' && state.selectedClientId) desiredHash = `#/fiado/${state.selectedClientId}`;
+    else desiredHash = '#/dashboard';
+
+    if (window.location.hash !== desiredHash) {
+        history.pushState(null, '', desiredHash);
+    }
+}
+
+function parseHashAndApply(hash) {
+    if (hash.startsWith('#/tabs/')) {
+        const id = Number(hash.split('/')[2]);
+        if (id) {
+            state.view = 'detail';
+            state.selectedTabId = id;
+            return true;
+        }
+    } else if (hash === '#/dashboard' || hash === '#/') {
+        state.view = 'dashboard';
+        state.selectedTabId = null;
+        return true;
+    } else if (hash === '#/history') {
+        state.view = 'history';
+        return true;
+    } else if (hash === '#/fiado') {
+        state.view = 'fiado';
+        return true;
+    } else if (hash.startsWith('#/fiado/')) {
+        const id = Number(hash.split('/')[2]);
+        if (id) {
+            state.view = 'fiado-detail';
+            state.selectedClientId = id;
+            return true;
+        }
+    }
+    return false;
+}
+
+window.addEventListener('hashchange', () => {
+    if (parseHashAndApply(window.location.hash)) {
+        scheduleRender();
+    }
+});
+
+// -----------------------------
 // Render scheduling (1 por ciclo)
 // -----------------------------
 let renderQueued = false
@@ -258,6 +310,7 @@ function render() {
         }
     }
     
+    syncHashWithState()
     prevView = state.view
 }
 
@@ -313,30 +366,32 @@ async function loadAdminDataIfNeeded() {
         await loadInitialData()
         await loadAdminDataIfNeeded()
 
-        // Restaura contexto caso a página venha de um auto-reload de rede
+        // Se o reload veio automático do sistema por indisponibilidade de internet
+        let restoredFromReload = false;
         if (sessionStorage.getItem('needs_reload') === 'true') {
             sessionStorage.removeItem('needs_reload')
-            const savedView = sessionStorage.getItem('saved_view')
-            const savedTabId = sessionStorage.getItem('saved_tab_id')
-            
-            if (savedView === 'detail' && savedTabId) {
-                // Checa se a comanda ainda estava listada como 'open' no banco
-                const tabStillExists = state.tabs.find(t => String(t.id) === String(savedTabId))
-                if (tabStillExists) {
-                    state.view = 'detail'
-                    state.selectedTabId = Number(savedTabId)
-                    socketService.joinTab(state.selectedTabId)
-                } else {
-                    alert('Conexão restabelecida.\nA comanda que você visualizava foi finalizada, paga ou removida em outro terminal.')
-                    state.view = 'dashboard'
-                    state.selectedTabId = null
-                }
-            } else if (savedView === 'dashboard') {
+            restoredFromReload = true;
+        }
+        
+        // Recupera o estado visual da própria URL que sempre reflete a verdade
+        if (window.location.hash) {
+            parseHashAndApply(window.location.hash);
+        } else {
+            state.view = 'dashboard';
+        }
+
+        // Caso seja detail view (carregando de um F5 ou Share Link ou Reload Offline) verificar validade
+        if (state.view === 'detail' && state.selectedTabId) {
+            const tabStillExists = state.tabs.find(t => String(t.id) === String(state.selectedTabId))
+            if (tabStillExists) {
+                socketService.joinTab(state.selectedTabId)
+            } else {
+                alert(restoredFromReload 
+                    ? 'Conexão restabelecida.\nA comanda que você visualizava foi paga, fechada ou removida em outro terminal e voltará ao início.'
+                    : 'A comanda não existe, foi concluída ou não está disponível atualmente.')
                 state.view = 'dashboard'
+                state.selectedTabId = null
             }
-            
-            sessionStorage.removeItem('saved_view')
-            sessionStorage.removeItem('saved_tab_id')
         }
 
         render()
@@ -377,11 +432,9 @@ let offlineTimeout = null;
 window.addEventListener('offline', () => {
     console.log('[network] offline event fired. Iniciando contador de tolerância...')
     offlineTimeout = setTimeout(() => {
-        console.log('[network] offline restrito (> 4s). Preparando contexto para reload.')
+        console.log('[network] offline restrito (> 4s). Preparando flag de reload (URL preservará tudo nativamente).')
         sessionStorage.setItem('needs_reload', 'true')
-        if (state.view) sessionStorage.setItem('saved_view', state.view)
-        if (state.selectedTabId) sessionStorage.setItem('saved_tab_id', state.selectedTabId)
-    }, 4000) // 4s timeout blocks fast Wi-Fi/4G drops
+    }, 4000)
 })
 
 window.addEventListener('online', () => {
