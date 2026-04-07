@@ -55,12 +55,19 @@ function refreshDetailTab() {
         .then(updatedTab => {
             console.log(`[api] fetched tab ${updatedTab.id} successfully`)
             const idx = state.tabs.findIndex(t => t.id === updatedTab.id)
+            let hasChanges = false
+            
             if (idx > -1) {
-                state.tabs[idx] = updatedTab
+                if (JSON.stringify(state.tabs[idx]) !== JSON.stringify(updatedTab)) {
+                    state.tabs[idx] = updatedTab
+                    hasChanges = true
+                }
             } else if (updatedTab.status === 'open') {
                 state.tabs.unshift(updatedTab)
+                hasChanges = true
             }
-            if (state.view === 'detail') {
+
+            if (hasChanges && state.view === 'detail') {
                 console.log(`[render] scheduled rerender for detail tab ${updatedTab.id}`)
                 scheduleRender()
             }
@@ -74,8 +81,10 @@ function refreshDashboardTabs() {
     return api.getTabs({ status: 'open' })
         .then(tabs => {
             console.log(`[api] fetched ${tabs.length} tabs for dashboard successfully`)
+            const hasChanges = JSON.stringify(state.tabs) !== JSON.stringify(tabs)
+            
             state.tabs = tabs
-            if (state.view === 'dashboard') {
+            if (hasChanges && state.view === 'dashboard') {
                 console.log('[render] scheduled rerender for dashboard')
                 scheduleRender()
             }
