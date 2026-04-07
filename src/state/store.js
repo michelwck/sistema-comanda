@@ -8,6 +8,7 @@ export const state = {
     lastKeyboardAt: 0,
     searchTerm: '',
     selectedIndex: 0,
+    dashboardSection: 'general',
     quickAddSearch: '',
     quickAddSelectedIndex: 0,
     fiadoSelectedClientId: null,

@@ -193,6 +193,31 @@ export function attachDetailEvents(state, render) {
     }
 
     // ----------------------------
+    // Edit tab section
+    // ----------------------------
+    const sectionSelect = document.querySelector('#tab-section-select');
+    if (sectionSelect) {
+        sectionSelect.addEventListener('change', (e) => {
+            const newSection = e.target.value;
+            const currentTabId = state.selectedTabId;
+
+            api.updateTab(currentTabId, { section: newSection })
+                .then(updatedTab => {
+                    const idx = state.tabs.findIndex(t => t.id === currentTabId);
+                    if (idx > -1) {
+                        state.tabs[idx] = updatedTab;
+                    }
+
+                    // Redraw seguro: somente se ainda estivermos na tela de detalhe desta mesma comanda
+                    if (state.view === 'detail' && state.selectedTabId === currentTabId) {
+                        render();
+                    }
+                })
+                .catch(err => alert('Erro ao mover comanda: ' + err.message));
+        }, { signal });
+    }
+
+    // ----------------------------
     // Payment
     // ----------------------------
     const closeTabBtn = document.querySelector('#close-tab-btn');

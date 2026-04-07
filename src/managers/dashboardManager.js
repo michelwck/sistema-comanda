@@ -112,7 +112,10 @@ export function attachDashboardEvents(state, render, getFilteredTabs) {
             const customer = customerEl?.value;
             if (!customer) return;
 
-            api.createTab({ customer })
+            api.createTab({ 
+                customer, 
+                section: state.dashboardSection // Preserva assinatura real acrescendo apenas o campo
+            })
                 .then((newTab) => {
                     modal?.classList.add('hidden');
 
@@ -129,4 +132,17 @@ export function attachDashboardEvents(state, render, getFilteredTabs) {
                 .catch(err => alert('Erro ao criar comanda: ' + err.message));
         }, { signal });
     }
+
+    // Dashboard Section Tabs listener
+    const sectionBtns = document.querySelectorAll('.dashboard-tab-btn');
+    sectionBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const section = btn.dataset.section;
+            if (section && state.dashboardSection !== section) {
+                state.dashboardSection = section;
+                state.selectedIndex = 0; // Reset selection index when changing tabs
+                render();
+            }
+        }, { signal });
+    });
 }

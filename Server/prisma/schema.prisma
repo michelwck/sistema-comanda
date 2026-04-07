@@ -52,6 +52,7 @@ model Tab {
   status        String   @default("open") // open, paid, cancelled, closed (historically used closed)
   paymentMethod String?  // money, credit, debit, fiado
   total         Decimal  @db.Decimal(10, 2) @default(0)
+  section       String   @default("general") // "general" | "football"
   openedAt      DateTime @default(now())
   closedAt      DateTime?
   createdAt     DateTime @default(now())

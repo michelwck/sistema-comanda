@@ -94,6 +94,24 @@ export function TabDetail(props = {}) {
             aria-label="Nome do Cliente"
          >
     </div>
+    ${!isReadOnly ? `
+    <div style="margin-top: 0.25rem; padding-left: 2.25rem;">
+      <select id="tab-section-select" style="
+        background: transparent;
+        border: none;
+        color: var(--color-text-muted);
+        font-size: 0.85rem;
+        cursor: pointer;
+        padding: 0;
+        outline: none;
+        appearance: none;
+        -webkit-appearance: none;
+      ">
+        <option value="general" ${(tab.section || 'general') === 'general' ? 'selected' : ''}>⚙️ Geral</option>
+        <option value="football" ${tab.section === 'football' ? 'selected' : ''}>⚽ Futebol</option>
+      </select>
+    </div>
+    ` : ''}
   `;
 
   const actionsHtml = `

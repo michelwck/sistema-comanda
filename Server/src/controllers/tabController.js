@@ -67,7 +67,7 @@ export const getTabById = async (req, res, next) => {
 // POST /api/tabs - Criar nova comanda
 export const createTab = async (req, res, next) => {
     try {
-        const { customer, clientId } = req.body;
+        const { customer, clientId, section } = req.body;
 
         if (!customer) {
             return res.status(400).json({ error: 'Nome do cliente é obrigatório' });
@@ -79,6 +79,7 @@ export const createTab = async (req, res, next) => {
                 clientId: clientId ? parseInt(clientId) : null,
                 status: 'open',
                 total: 0,
+                section: section || 'general',
                 createdByUserId: req.user ? req.user.id : null
             },
             include: {
@@ -104,7 +105,7 @@ export const createTab = async (req, res, next) => {
 export const updateTab = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const { customer, status, clientId } = req.body;
+        const { customer, status, clientId, section } = req.body;
 
         const updateData = {};
         if (customer !== undefined) updateData.customer = customer;
@@ -118,6 +119,7 @@ export const updateTab = async (req, res, next) => {
             }
         }
         if (clientId !== undefined) updateData.clientId = clientId ? parseInt(clientId) : null;
+        if (section !== undefined) updateData.section = section;
 
         const tab = await prisma.$transaction(async (tx) => {
             const updatedTab = await tx.tab.update({

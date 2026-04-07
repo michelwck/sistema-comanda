@@ -23,6 +23,7 @@ const viewRenderers = {
             selectedIndex: state.selectedIndex,
             searchTerm: state.searchTerm,
             currentUser: state.currentUser,
+            dashboardSection: state.dashboardSection,
         }),
 
     detail: (state) => {
