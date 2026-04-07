@@ -265,9 +265,12 @@ export function attachKeyboardEvents(state, render, getTabs) {
 
                 const tab = filteredTabs[state.selectedIndex] || filteredTabs[0];
                 if (tab) {
+                    console.log('[DEBUG-FLOW] KEYBOARD ENTER na BUSCA. ID:', tab.id);
                     state.selectedTabId = tab.id;
                     state.view = 'detail';
+                    console.log('[DEBUG-FLOW] Calling pushRoute...', tab.id);
                     pushRoute('detail', tab.id);
+                    console.log('[DEBUG-FLOW] pathname:', window.location.pathname);
                     state.detailItemIndex = -1;
 
                     socketService.joinTab(tab.id);
@@ -325,9 +328,12 @@ export function attachKeyboardEvents(state, render, getTabs) {
                     e.preventDefault();
                     const tab = filteredTabs[state.selectedIndex];
                     if (tab) {
+                        console.log('[DEBUG-FLOW] KEYBOARD ENTER no GRID. ID:', tab.id);
                         state.selectedTabId = tab.id;
                         state.view = 'detail';
+                        console.log('[DEBUG-FLOW] Calling pushRoute...', tab.id);
                         pushRoute('detail', tab.id);
+                        console.log('[DEBUG-FLOW] pathname:', window.location.pathname);
                         state.detailItemIndex = -1;
                         socketService.joinTab(tab.id);
                         scheduleKeyboardRender(render);

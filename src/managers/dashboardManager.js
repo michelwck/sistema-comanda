@@ -32,11 +32,19 @@ export function attachDashboardEvents(state, render, getFilteredTabs) {
             // open detail
             const id = parseInt(card.dataset.id);
             if (!isNaN(id)) {
+                console.log('[DEBUG-FLOW] 1. Card clicado! ID:', id);
+
                 socketService.joinTab(id);
                 state.selectedTabId = id;
                 state.view = 'detail';
+                
+                console.log('[DEBUG-FLOW] 2. state.view alterado para detail. Chamando pushRoute...');
                 pushRoute('detail', id);
+                console.log('[DEBUG-FLOW] 3. pushRoute completado. window.location.pathname agora é:', window.location.pathname);
+
                 state.detailItemIndex = -1;
+                
+                console.log('[DEBUG-FLOW] 4. Chamando render().');
                 render();
             }
         }, { signal });
