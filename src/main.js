@@ -12,6 +12,7 @@ import { attachKeyboardEvents } from './managers/keyboardManager.js'
 import { attachGlobalEvents } from './managers/globalEventsManager.js'
 import { state } from './state/store.js'
 import { getFilteredTabs } from './state/selectors.js'
+import { restoreStateFromUrl, attachNavigationEvents } from './managers/navigationManager.js'
 
 const app = document.querySelector('#app')
 const getTabs = () => getFilteredTabs(state)
@@ -314,29 +315,30 @@ async function loadAdminDataIfNeeded() {
         await loadAdminDataIfNeeded()
 
         // Restaura contexto caso a página venha de um auto-reload de rede
+        let restoredFromReload = false;
         if (sessionStorage.getItem('needs_reload') === 'true') {
             sessionStorage.removeItem('needs_reload')
-            const savedView = sessionStorage.getItem('saved_view')
-            const savedTabId = sessionStorage.getItem('saved_tab_id')
-            
-            if (savedView === 'detail' && savedTabId) {
-                // Checa se a comanda ainda estava listada como 'open' no banco
-                const tabStillExists = state.tabs.find(t => String(t.id) === String(savedTabId))
-                if (tabStillExists) {
-                    state.view = 'detail'
-                    state.selectedTabId = Number(savedTabId)
-                    socketService.joinTab(state.selectedTabId)
-                } else {
-                    alert('Conexão restabelecida.\nA comanda que você visualizava foi finalizada, paga ou removida em outro terminal.')
-                    state.view = 'dashboard'
-                    state.selectedTabId = null
+            restoredFromReload = true;
+        }
+
+        // Lê nativamente o estado a partir da Rota URL /dashboard ou /tabs/id (Fallback nativo ou F5)
+        restoreStateFromUrl(state);
+
+        // Se era tela de detail, recarrega com segurança se as comandas permitirem
+        if (state.view === 'detail' && state.selectedTabId) {
+            const tabExists = state.tabs.find(t => String(t.id) === String(state.selectedTabId))
+            if (tabExists) {
+                // Manter context, a socket vai reconectar organicamente 
+            } else {
+                state.view = 'dashboard';
+                state.selectedTabId = null;
+                history.replaceState({ view: 'dashboard' }, '', '/dashboard');
+
+                // Exibe alerta só se veio de um blackout real
+                if (restoredFromReload) {
+                    alert('Conexão restabelecida.\nA comanda que você visualizava foi finalizada, paga ou removida em outro terminal.');
                 }
-            } else if (savedView === 'dashboard') {
-                state.view = 'dashboard'
             }
-            
-            sessionStorage.removeItem('saved_view')
-            sessionStorage.removeItem('saved_tab_id')
         }
 
         render()
@@ -360,6 +362,7 @@ async function loadAdminDataIfNeeded() {
 // -----------------------------
 attachGlobalEvents(state, scheduleRender)
 attachKeyboardEvents(state, scheduleRender, getTabs)
+attachNavigationEvents(state, scheduleRender)
 
 window.addEventListener('focus', () => {
     console.log('[network] window focus fired')
@@ -379,8 +382,6 @@ window.addEventListener('offline', () => {
     offlineTimeout = setTimeout(() => {
         console.log('[network] offline restrito (> 4s). Preparando contexto para reload.')
         sessionStorage.setItem('needs_reload', 'true')
-        if (state.view) sessionStorage.setItem('saved_view', state.view)
-        if (state.selectedTabId) sessionStorage.setItem('saved_tab_id', state.selectedTabId)
     }, 4000) // 4s timeout blocks fast Wi-Fi/4G drops
 })
 

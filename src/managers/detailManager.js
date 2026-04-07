@@ -1,6 +1,7 @@
 import * as api from '../services/api.js';
 import { normalizeString } from '../utils/helpers.js';
 import socketService from '../services/socket.js';
+import { pushRoute, replaceRoute } from './navigationManager.js';
 
 let controller = null;
 
@@ -20,6 +21,7 @@ export function attachDetailEvents(state, render) {
             socketService.leaveTab(state.selectedTabId);
             state.selectedTabId = null;
             state.view = 'dashboard';
+            replaceRoute('dashboard');
             render();
 
             queueMicrotask(() => {

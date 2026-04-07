@@ -1,5 +1,6 @@
 import * as api from '../services/api.js';
 import socketService from '../services/socket.js';
+import { pushRoute } from './navigationManager.js';
 
 let controller = null;
 
@@ -93,6 +94,7 @@ export function attachKeyboardEvents(state, render, getTabs) {
 
                 state.selectedTabId = null;
                 state.view = 'dashboard';
+                pushRoute('dashboard');
                 scheduleKeyboardRender(render);
 
                 // foca busca depois do DOM atualizar
@@ -265,6 +267,7 @@ export function attachKeyboardEvents(state, render, getTabs) {
                 if (tab) {
                     state.selectedTabId = tab.id;
                     state.view = 'detail';
+                    pushRoute('detail', tab.id);
                     state.detailItemIndex = -1;
 
                     socketService.joinTab(tab.id);
@@ -324,6 +327,7 @@ export function attachKeyboardEvents(state, render, getTabs) {
                     if (tab) {
                         state.selectedTabId = tab.id;
                         state.view = 'detail';
+                        pushRoute('detail', tab.id);
                         state.detailItemIndex = -1;
                         socketService.joinTab(tab.id);
                         scheduleKeyboardRender(render);

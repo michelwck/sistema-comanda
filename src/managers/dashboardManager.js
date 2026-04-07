@@ -1,5 +1,6 @@
 import * as api from '../services/api.js';
 import socketService from '../services/socket.js';
+import { pushRoute } from './navigationManager.js';
 
 let controller = null;
 
@@ -34,6 +35,7 @@ export function attachDashboardEvents(state, render, getFilteredTabs) {
                 socketService.joinTab(id);
                 state.selectedTabId = id;
                 state.view = 'detail';
+                pushRoute('detail', id);
                 state.detailItemIndex = -1;
                 render();
             }
@@ -118,6 +120,7 @@ export function attachDashboardEvents(state, render, getFilteredTabs) {
                     socketService.joinTab(newTab.id);
                     state.selectedTabId = newTab.id;
                     state.view = 'detail';
+                    pushRoute('detail', newTab.id);
                     state.detailItemIndex = -1;
 
                     // pequeno delay ok, mas render ja esta seguro
