@@ -95,20 +95,25 @@ export function TabDetail(props = {}) {
          >
     </div>
     ${!isReadOnly ? `
-    <div style="margin-top: 0.25rem; padding-left: 2.25rem;">
+    <div style="margin-top: 0.5rem; padding-left: 2.25rem;">
       <select id="tab-section-select" style="
-        background: transparent;
-        border: none;
-        color: var(--color-text-muted);
-        font-size: 0.85rem;
+        background: var(--color-primary);
+        border: 1px solid rgba(255,255,255,0.1);
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 600;
         cursor: pointer;
-        padding: 0;
+        padding: 4px 12px;
+        border-radius: 999px;
         outline: none;
         appearance: none;
         -webkit-appearance: none;
+        text-align: center;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       ">
-        <option value="general" ${(tab.section || 'general') === 'general' ? 'selected' : ''}>⚙️ Geral</option>
-        <option value="football" ${tab.section === 'football' ? 'selected' : ''}>⚽ Futebol</option>
+        <option value="general" ${(tab.section || 'general') === 'general' ? 'selected' : ''} style="background: var(--color-bg-surface); color: white;">⚙️ Geral</option>
+        <option value="football" ${tab.section === 'football' ? 'selected' : ''} style="background: var(--color-bg-surface); color: white;">⚽ Futebol</option>
       </select>
     </div>
     ` : ''}
