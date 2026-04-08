@@ -6,15 +6,71 @@ function refreshFiadoData(state, render) {
         api.getClients(),
         api.getClientTransactions(state.fiadoSelectedClientId)
     ]).then(([clients, transactions]) => {
-        state.clients = clients;
-        state.fiadoTransactions = transactions;
-        render();
-        // Auto-scroll to bottom of transaction list
-        const transactionList = document.querySelector('#fiado-transaction-list');
-        if (transactionList) {
-            transactionList.scrollTop = transactionList.scrollHeight;
+        const clientsChanged = JSON.stringify(state.clients) !== JSON.stringify(clients);
+        const transactionsChanged = JSON.stringify(state.fiadoTransactions) !== JSON.stringify(transactions);
+
+        if (clientsChanged || transactionsChanged) {
+            state.clients = clients;
+            state.fiadoTransactions = transactions;
+            render();
+            
+            // Auto-scroll to bottom only if transactions changed
+            if (transactionsChanged) {
+                setTimeout(() => {
+                    const transactionList = document.querySelector('#fiado-transaction-list');
+                    if (transactionList) {
+                        transactionList.scrollTop = transactionList.scrollHeight;
+                    }
+                }, 0);
+            }
         }
     });
+}
+
+/**
+ * Handler global para eventos de socket relacionados a clientes
+ */
+export function handleClientSocketEvent(state, render, event, data) {
+    let shouldRender = false;
+
+    if (event === 'client:balance:updated') {
+        const { clientId, balance } = data;
+        const client = state.clients.find(c => c.id === clientId);
+        if (client && client.balance !== balance) {
+            client.balance = balance;
+            shouldRender = true;
+
+            // Se for o cliente selecionado, buscar transações novas
+            if (state.view === 'fiado' && state.fiadoSelectedClientId === clientId) {
+                api.getClientTransactions(clientId).then(transactions => {
+                    if (JSON.stringify(state.fiadoTransactions) !== JSON.stringify(transactions)) {
+                        state.fiadoTransactions = transactions;
+                        render();
+                    }
+                });
+            }
+        }
+    } else if (event === 'client:created') {
+        if (!state.clients.find(c => c.id === data.id)) {
+            state.clients.push(data);
+            state.clients.sort((a, b) => a.name.localeCompare(b.name));
+            shouldRender = true;
+        }
+    } else if (event === 'client:updated') {
+        const idx = state.clients.findIndex(c => c.id === data.id);
+        if (idx > -1) {
+            state.clients[idx] = { ...state.clients[idx], ...data };
+            shouldRender = true;
+        }
+    } else if (event === 'client:deleted') {
+        const oldLen = state.clients.length;
+        state.clients = state.clients.filter(c => c.id !== data.id);
+        if (state.clients.length !== oldLen) shouldRender = true;
+    }
+
+    if (shouldRender && state.view === 'fiado') {
+        render();
+    }
 }
 
 export function attachFiadoEvents(state, render) {
@@ -30,12 +86,16 @@ export function attachFiadoEvents(state, render) {
 
                 api.getClientTransactions(id)
                     .then(transactions => {
-                        state.fiadoTransactions = transactions;
-                        render();
-                        // Auto-scroll to bottom of transaction list
-                        const transactionList = document.querySelector('#fiado-transaction-list');
-                        if (transactionList) {
-                            transactionList.scrollTop = transactionList.scrollHeight;
+                        if (JSON.stringify(state.fiadoTransactions) !== JSON.stringify(transactions)) {
+                            state.fiadoTransactions = transactions;
+                            render();
+                            
+                            setTimeout(() => {
+                                const transactionList = document.querySelector('#fiado-transaction-list');
+                                if (transactionList) {
+                                    transactionList.scrollTop = transactionList.scrollHeight;
+                                }
+                            }, 50);
                         }
                     })
                     .catch(err => alert('Erro ao carregar extrato: ' + err.message));

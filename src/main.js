@@ -13,6 +13,7 @@ import { attachGlobalEvents } from './managers/globalEventsManager.js'
 import { state } from './state/store.js'
 import { getFilteredTabs } from './state/selectors.js'
 import { restoreStateFromUrl, attachNavigationEvents } from './managers/navigationManager.js'
+import { handleClientSocketEvent } from './managers/fiadoManager.js'
 
 const app = document.querySelector('#app')
 const getTabs = () => getFilteredTabs(state)
@@ -131,6 +132,13 @@ function setupSocketListeners() {
 
     // segurança extra: remove qualquer listener antigo (caso reload/hot, etc.)
     events.forEach(ev => socketService.removeAllListeners(ev))
+    
+    // Eventos de Cliente (Fiado/Realtime)
+    const clientEvents = ['client:created', 'client:updated', 'client:deleted', 'client:balance:updated'];
+    clientEvents.forEach(ev => {
+        socketService.removeAllListeners(ev);
+        socketService.on(ev, (data) => handleClientSocketEvent(state, scheduleRender, ev, data));
+    });
 
     socketService.on('tab:created', (newTab) => {
         if (!state.tabs.find(t => t.id === newTab.id)) {

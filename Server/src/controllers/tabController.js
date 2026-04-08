@@ -154,6 +154,15 @@ export const updateTab = async (req, res, next) => {
         const io = req.app.get('io');
         io.to('tabs:open').emit('tab:updated', tab);
 
+        // Se for fechamento como Fiado, emitir atualização de saldo do cliente
+        if (status === 'closed' && req.body.paymentMethod === 'fiado' && clientId) {
+            const allTransactions = await prisma.clientTransaction.findMany({
+                where: { clientId: parseInt(clientId) }
+            });
+            const balance = allTransactions.reduce((acc, t) => acc + Number(t.amount), 0);
+            io.emit('client:balance:updated', { clientId: parseInt(clientId), balance });
+        }
+
         res.json(tab);
     } catch (error) {
         next(error);
