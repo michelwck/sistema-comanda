@@ -132,7 +132,7 @@ export function FiadoControl({ clients, selectedClientId, transactions }) {
 
         <!-- Payment Modal -->
         <div id="fiado-payment-modal" class="modal-overlay hidden">
-            <div class="modal">
+            <div class="modal-content">
                 <div class="modal-header">
                     <h3>Lançar Pagamento</h3>
                     <button class="close-modal" id="cancel-payment-web-btn">&times;</button>
@@ -156,7 +156,7 @@ export function FiadoControl({ clients, selectedClientId, transactions }) {
 
         <!-- Debt Modal -->
         <div id="fiado-debt-modal" class="modal-overlay hidden">
-            <div class="modal">
+            <div class="modal-content">
                 <div class="modal-header">
                     <h3>Registrar Dívida</h3>
                     <button class="close-modal" id="cancel-debt-web-btn">&times;</button>
