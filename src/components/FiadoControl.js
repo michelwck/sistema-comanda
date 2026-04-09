@@ -50,7 +50,7 @@ export function FiadoControl({ clients, selectedClientId, transactions }) {
                 const balanceColor = runningBalance > 0.01 ? 'var(--color-danger)' : (runningBalance < -0.01 ? 'var(--color-success)' : 'var(--color-text-muted)');
 
                 return `
-                <div style="display: grid; grid-template-columns: 140px 1fr 100px 120px 50px; padding: 0.5rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); align-items: center;">
+                <div class="fiado-transaction-grid" style="padding: 0.5rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); align-items: center;">
                     <div style="font-size: 0.85rem; color: var(--color-text-muted);">${formatDate(t.createdAt)}</div>
                     <div>
                         <div style="font-weight: 500;">${t.type === 'FIADO' ? 'Fiado' : (t.type === 'MANUAL_DEBT' ? 'Dívida Lançada' : 'Pagamento')}</div>
@@ -91,7 +91,7 @@ export function FiadoControl({ clients, selectedClientId, transactions }) {
                     
                     <!-- Transactions List -->
                     <div id="fiado-transaction-list" style="flex: 1; overflow-y: auto; background: var(--color-bg-elevated); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
-                         <div style="display: grid; grid-template-columns: 140px 1fr 100px 120px 50px; padding: 0.75rem 1rem; background: rgba(0,0,0,0.2); font-weight: 600; font-size: 0.9rem; color: var(--color-text-muted);">
+                         <div class="fiado-transaction-grid-header" style="background: rgba(0,0,0,0.2); font-weight: 600; font-size: 0.9rem; color: var(--color-text-muted); padding: 0.75rem 1rem;">
                             <div>Data</div>
                             <div>Histórico</div>
                             <div style="text-align: right;">Valor</div>
@@ -113,7 +113,7 @@ export function FiadoControl({ clients, selectedClientId, transactions }) {
     }
 
     const content = `
-            <div class="card" style="display: grid; grid-template-columns: 350px 1fr; gap: 0; padding: 0; height: calc(100vh - 140px); overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+            <div class="card fiado-layout">
                 <!-- Left Column: Client List -->
                 <div style="border-right: 1px solid rgba(255,255,255,0.1); overflow-y: auto; background: rgba(0,0,0,0.2);">
                     <div style="padding: 1rem; position: sticky; top: 0; background: inherit; backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1);">
@@ -125,7 +125,7 @@ export function FiadoControl({ clients, selectedClientId, transactions }) {
                 </div>
                 
                 <!-- Right Column: Details -->
-                <div style="padding: 2rem; overflow-y: auto; background: var(--color-bg-surface);">
+                <div class="fiado-detail-container" style="padding: 2rem; overflow-y: auto; background: var(--color-bg-surface);">
                     ${detailsHtml}
                 </div>
             </div>

@@ -625,3 +625,54 @@ a {
 .fade-in {
   animation: fadeIn 0.3s ease-out;
 }
+
+/* Fiado Layout Mobile Fix */
+.fiado-layout {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 0;
+  padding: 0;
+  height: calc(100vh - 140px);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.fiado-transaction-grid {
+  display: grid;
+  grid-template-columns: 140px 1fr 100px 120px 50px;
+}
+
+.fiado-transaction-grid-header {
+  display: grid;
+  grid-template-columns: 140px 1fr 100px 120px 50px;
+}
+
+@media (max-width: 768px) {
+  .fiado-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: 40% 60%;
+  }
+
+  .fiado-layout > div {
+    border-right: none !important;
+  }
+  
+  .fiado-layout > div:first-child {
+    border-bottom: 2px solid var(--color-primary);
+  }
+
+  .fiado-detail-container {
+    padding: 1rem !important;
+  }
+  
+  .fiado-transaction-grid {
+      grid-template-columns: 80px 1fr 70px 80px 30px !important;
+      font-size: 0.8rem !important;
+  }
+
+  .fiado-transaction-grid-header {
+      grid-template-columns: 80px 1fr 70px 80px 30px !important;
+      font-size: 0.8rem !important;
+      padding: 0.5rem !important;
+  }
+}
