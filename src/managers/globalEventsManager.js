@@ -55,6 +55,8 @@ export function attachGlobalEvents(state, render) {
             state.fiadoSelectedClientId = null;
             state.fiadoTransactions = [];
 
+            import('./navigationManager.js').then(m => m.pushRoute(view));
+
             if (view === 'history') fetchHistory(state, render);
 
             if (window.innerWidth <= 768) {

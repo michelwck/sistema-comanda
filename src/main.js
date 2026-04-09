@@ -266,13 +266,13 @@ function render() {
 
     // Gatilhos de transição de tela: antes de exibir a versão final preenchida, mandamos buscar a nova versão
     if (state.view !== prevView) {
-        if (prevView !== null) { // Evita double fetch no primeiro load
-            if (state.view === 'dashboard') {
-                refreshDashboardTabs()
-                focusDashboardSearch(true)
-            } else if (state.view === 'detail') {
-                refreshDetailTab()
-            }
+        if (state.view === 'dashboard') {
+            refreshDashboardTabs()
+            focusDashboardSearch(true)
+        } else if (state.view === 'detail') {
+            refreshDetailTab()
+        } else if (state.view === 'fiado') {
+            import('./managers/fiadoManager.js').then(m => m.refreshFiadoData(state, scheduleRender));
         }
     }
     

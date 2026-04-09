@@ -1,7 +1,16 @@
 import * as api from '../services/api.js';
+import { pushRoute } from './navigationManager.js';
 
 function refreshFiadoData(state, render) {
-    if (!state.fiadoSelectedClientId) return;
+    if (!state.fiadoSelectedClientId) {
+        return api.getClients().then(clients => {
+            if (JSON.stringify(state.clients) !== JSON.stringify(clients)) {
+                state.clients = clients;
+                render();
+            }
+        });
+    }
+
     Promise.all([
         api.getClients(),
         api.getClientTransactions(state.fiadoSelectedClientId)
@@ -81,8 +90,22 @@ export function attachFiadoEvents(state, render) {
             const id = parseInt(item.dataset.id);
             if (state.fiadoSelectedClientId !== id) {
                 state.fiadoSelectedClientId = id;
-                state.fiadoTransactions = null; // Loading state indicator if needed
-                render(); // Show loader? Or just list.
+                
+                // Feedback visual imediato sem pisque (Flicker)
+                document.querySelectorAll('.fiado-client-item').forEach(el => {
+                    if (el === item) {
+                        el.classList.add('active');
+                        el.style.background = 'rgba(139, 92, 246, 0.1)';
+                        el.style.borderLeft = '2px solid var(--color-primary)';
+                    } else {
+                        el.classList.remove('active');
+                        el.style.background = 'transparent';
+                        el.style.borderLeft = 'none';
+                        el.style.transition = 'background 0.2s';
+                    }
+                });
+
+                pushRoute('fiado', id);
 
                 api.getClientTransactions(id)
                     .then(transactions => {

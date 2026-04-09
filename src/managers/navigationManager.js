@@ -2,6 +2,8 @@ export function pushRoute(view, id = null) {
     let path = '/dashboard';
     if (view === 'detail' && id) {
         path = `/tabs/${id}`;
+    } else if (view === 'fiado' && id) {
+        path = `/fiado/${id}`;
     } else if (view && view !== 'dashboard') {
         // Fallbacks para outras views se existirem rotas diretas futuramente
         path = `/${view}`;
@@ -16,6 +18,8 @@ export function replaceRoute(view, id = null) {
     let path = '/dashboard';
     if (view === 'detail' && id) {
         path = `/tabs/${id}`;
+    } else if (view === 'fiado' && id) {
+        path = `/fiado/${id}`;
     } else if (view && view !== 'dashboard') {
         path = `/${view}`;
     }
@@ -48,8 +52,8 @@ export function restoreStateFromUrl(state) {
     } else if (path.startsWith('/fiado/')) {
         const id = Number(path.split('/')[2]);
         if (id) {
-            state.view = 'fiado-detail';
-            state.selectedClientId = id;
+            state.view = 'fiado';
+            state.fiadoSelectedClientId = id;
             return true;
         }
     }
