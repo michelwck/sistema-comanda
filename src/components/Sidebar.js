@@ -29,9 +29,9 @@ export function Sidebar(currentView, currentUser) {
       <div id="sidebar-toggle-btn" class="sidebar-toggle">
         <span style="font-size: 12px;">◀</span>
       </div>
-      <div class="app-header">
-        <div class="app-logo">
-          🍺 BarComanda
+      <div class="app-header" style="justify-content: center;">
+        <div class="app-logo" style="display: flex; align-items: center; justify-content: center; width: 100%;">
+          <img src="/logo.png" alt="ZEROSE7E" style="max-height: 40px; max-width: 180px; object-fit: contain; filter: drop-shadow(0 0 10px rgba(255,255,255,0.1));">
         </div>
       </div>
 

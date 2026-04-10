@@ -24,27 +24,12 @@ export function Login() {
         width: 100%;
       ">
         <!-- Logo -->
-        <div style="
-          width: 100px;
-          height: 100px;
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          border-radius: 24px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin: 0 auto 2rem;
-          box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
-        ">
-          <span style="font-size: 3.5rem;">🍺</span>
+        <div style="text-align: center; margin-bottom: 0.75rem;">
+          <img src="/logo.png" alt="ZEROSE7E" style="max-width: 250px; max-height: 120px; object-fit: contain;">
         </div>
         
         <!-- Title -->
-        <h1 style="
-          font-size: 2.5rem;
-          font-weight: 700;
-          color: #1a202c;
-          margin-bottom: 0.75rem;
-        ">BarComanda</h1>
+        <h1 style="display: none;">ZEROSE7E</h1>
         
         <p style="
           color: #718096;
