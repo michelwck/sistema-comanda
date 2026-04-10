@@ -107,9 +107,10 @@ export function attachProductEvents(state, render) {
         form.addEventListener('submit', (e) => {
             e.preventDefault();
             const id = document.querySelector('#product-id').value;
+            const categorySelect = document.querySelector('#product-category');
             const data = {
                 name: document.querySelector('#product-name').value,
-                category: document.querySelector('#product-category').value,
+                category: categorySelect.options[categorySelect.selectedIndex].text,
                 price: parseFloat(document.querySelector('#product-price').value)
             };
 
