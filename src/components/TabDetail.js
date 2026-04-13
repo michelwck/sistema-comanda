@@ -136,10 +136,15 @@ export function TabDetail(props = {}) {
   `;
 
   const content = `
-      <div style="margin-bottom: var(--spacing-md);">
+      <div style="margin-bottom: var(--spacing-md); display: flex; flex-direction: column; align-items: flex-start;">
            <button class="btn btn-secondary" id="back-btn" style="padding: 0.5rem 1rem;">
             ← Voltar
           </button>
+          ${tab.createdBy ? `
+            <div style="font-size: 0.8rem; color: var(--color-text-muted); margin-top: 0.5rem; padding-left: 0.25rem;">
+               Criado por: <b>${tab.createdBy.name}</b>
+            </div>
+          ` : ''}
       </div>
 
       <div class="card">

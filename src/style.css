@@ -306,10 +306,10 @@ a {
   text-transform: uppercase;
   letter-spacing: 0.02em;
 
-  /* Multi-line Truncation (2 lines) */
+  /* Multi-line Truncation (3 lines) */
   display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -403,7 +403,7 @@ a {
 /* Layout */
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 1rem;
   padding-bottom: 2rem;
 }

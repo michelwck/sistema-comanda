@@ -11,7 +11,6 @@ const tabCardTemplate = `
         <h3 class="tab-card-title">
             {{customer}}
         </h3>
-        {{creatorHtml}}
     </div>
 
     <div style="align-self: flex-start;">
@@ -46,11 +45,6 @@ export function TabList(tabs = activeTabs, selectedIndex = 0, currentUser = null
     const statusBg = isOpen ? 'rgba(34, 197, 94, 0.2)' : 'rgba(255, 255, 255, 0.1)';
     const statusColor = isOpen ? 'var(--color-success)' : 'var(--color-text-muted)';
 
-    let creatorHtml = '';
-    if (currentUser && currentUser.role === 'admin' && tab.createdBy) {
-      creatorHtml = `<div style="font-size: 0.7rem; color: var(--color-text-muted); margin-top: 4px;">Criado por: ${tab.createdBy.name}</div>`;
-    }
-
     return render(tabCardTemplate, {
       id: tab.id,
       customer: tab.customer,
@@ -59,8 +53,7 @@ export function TabList(tabs = activeTabs, selectedIndex = 0, currentUser = null
       statusColor,
       statusText: isOpen ? 'Aberta' : 'Fechada',
       openedAt: tab.openedAt ? new Date(tab.openedAt).toLocaleDateString('pt-BR') : '',
-      totalFormatted: parseFloat(tab.total || 0).toFixed(2),
-      creatorHtml
+      totalFormatted: parseFloat(tab.total || 0).toFixed(2)
     });
   }).join('');
 
