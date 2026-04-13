@@ -104,32 +104,49 @@ export function attachDashboardEvents(state, render, getFilteredTabs) {
         }, { signal });
     }
 
+    let isCreatingTab = false;
+
     if (form) {
         form.addEventListener('submit', (e) => {
             e.preventDefault();
 
+            if (isCreatingTab) return;
+
             const customerEl = document.querySelector('#new-tab-customer');
+            const submitBtn = form.querySelector('button[type="submit"]');
+            
             const customer = customerEl?.value;
             if (!customer) return;
 
+            isCreatingTab = true;
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Abrindo...';
+            }
+
             api.createTab({ 
                 customer, 
-                section: state.dashboardSection // Preserva assinatura real acrescendo apenas o campo
+                section: state.dashboardSection
             })
                 .then((newTab) => {
                     modal?.classList.add('hidden');
 
-                    // deixa socket evitar duplicar na lista
                     socketService.joinTab(newTab.id);
                     state.selectedTabId = newTab.id;
                     state.view = 'detail';
                     pushRoute('detail', newTab.id);
                     state.detailItemIndex = -1;
 
-                    // pequeno delay ok, mas render ja esta seguro
                     setTimeout(() => render(), 100);
                 })
-                .catch(err => alert('Erro ao criar comanda: ' + err.message));
+                .catch(err => alert('Erro ao criar comanda: ' + err.message))
+                .finally(() => {
+                    isCreatingTab = false;
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Abrir Comanda';
+                    }
+                });
         }, { signal });
     }
 
