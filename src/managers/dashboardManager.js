@@ -32,9 +32,13 @@ export function attachDashboardEvents(state, render, getFilteredTabs) {
             // open detail
             const id = parseInt(card.dataset.id);
             if (!isNaN(id)) {
+                // clear old delay if navigating by mouse inside dashboardManager
+                clearTimeout(searchTimeout);
+                
                 socketService.joinTab(id);
                 state.selectedTabId = id;
                 state.view = 'detail';
+                state.searchTerm = ''; // Limpa filtro
                 pushRoute('detail', id);
                 state.detailItemIndex = -1;
                 render();
@@ -65,22 +69,30 @@ export function attachDashboardEvents(state, render, getFilteredTabs) {
         }, { signal });
     });
 
+    let searchTimeout = null;
     const searchInput = document.querySelector('#search-comanda');
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
             const cursorPosition = e.target.selectionStart;
-            state.searchTerm = e.target.value;
-            state.selectedIndex = 0;
-            render();
+            const val = e.target.value;
+            
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                // Blindagem: se o timeout disparar mas o usuário já não estiver no dashboard, aborta.
+                if (state.view !== 'dashboard') return;
 
-            // restaura foco/cursor após o render assíncrono
-            setTimeout(() => {
-                const newInput = document.querySelector('#search-comanda');
-                if (newInput) {
-                    newInput.focus();
-                    newInput.setSelectionRange(cursorPosition, cursorPosition);
-                }
-            }, 0);
+                state.searchTerm = val;
+                state.selectedIndex = 0;
+                render();
+
+                setTimeout(() => {
+                    const newInput = document.querySelector('#search-comanda');
+                    if (newInput) {
+                        newInput.focus();
+                        newInput.setSelectionRange(cursorPosition, cursorPosition);
+                    }
+                }, 0);
+            }, 250);
         }, { signal });
     }
 

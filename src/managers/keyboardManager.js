@@ -267,6 +267,7 @@ export function attachKeyboardEvents(state, render, getTabs) {
                 if (tab) {
                     state.selectedTabId = tab.id;
                     state.view = 'detail';
+                    state.searchTerm = ''; // Limpa filtro
                     pushRoute('detail', tab.id);
                     state.detailItemIndex = -1;
 
@@ -327,6 +328,7 @@ export function attachKeyboardEvents(state, render, getTabs) {
                     if (tab) {
                         state.selectedTabId = tab.id;
                         state.view = 'detail';
+                        state.searchTerm = ''; // Limpa filtro
                         pushRoute('detail', tab.id);
                         state.detailItemIndex = -1;
                         socketService.joinTab(tab.id);
