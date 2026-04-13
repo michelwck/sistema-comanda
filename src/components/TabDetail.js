@@ -15,41 +15,47 @@ export function TabDetail(props = {}) {
   const reversedItems = tab.items ? [...tab.items] : [];
 
   const itemsHtml = reversedItems.length > 0 ? reversedItems.map((item, displayIndex) => {
-    // Backend returns items in desc order (addedAt), so reversedItems is already in display order.
-    // index is used for selection mapping in main.js (state.detailItemIndex)
     const index = displayIndex;
     const isSelected = index === selectedIndex;
+    const itemTotal = (parseFloat(item.price) * parseFloat(item.quantity)).toFixed(2).replace('.', ',');
 
     const actionButtons = isReadOnly ? '' : `
-      <div style="display: flex; align-items: center; gap: 0.5rem;">
-        <div style="font-weight: 600; margin-right: 0.5rem;">R$ ${(parseFloat(item.price) * parseFloat(item.quantity)).toFixed(2)}</div>
+      <div style="display: flex; align-items: center; gap: 0.25rem;">
         <button class="btn-icon item-options-btn" data-index="${index}" style="background: none; border: none; color: var(--color-text-muted); cursor: pointer; padding: 0.25rem; border-radius: 4px; transition: background 0.2s;" title="Editar">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
         </button>
         <button class="btn-icon item-remove-btn" data-index="${index}" style="background: none; border: none; color: var(--color-danger); cursor: pointer; padding: 0.25rem; border-radius: 4px; transition: background 0.2s;" title="Remover">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
         </button>
       </div>
     `;
 
     return `
-    <div class="tab-item-row" data-index="${index}" style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); border-radius: 4px; ${isSelected ? 'background: rgba(139, 92, 246, 0.15); border-left: 2px solid var(--color-primary);' : ''}">
-      <div style="flex: 1;">
-        <div style="font-weight: 500;">${item.name}</div>
-        <div style="font-size: 0.85rem; color: var(--color-text-muted);">
-            x${item.quantity} un.
-            <span style="font-size: 0.75rem; color: var(--color-text-muted); opacity: 0.7; margin-left: 0.5rem;">
-              ${(() => {
+    <div class="tab-item-row" data-index="${index}" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); border-radius: 4px; ${isSelected ? 'background: rgba(139, 92, 246, 0.15); border-left: 2px solid var(--color-primary);' : ''}">
+      <!-- Badge de Quantidade -->
+      <div style="background: rgba(255,255,255,0.1); color: var(--color-text-main); padding: 2px 8px; border-radius: 4px; font-weight: 700; min-width: 28px; text-align: center; font-size: 0.95rem;">
+        ${item.quantity}
+      </div>
+
+      <!-- Nome e Data -->
+      <div style="flex: 1; min-width: 0;">
+        <div style="font-weight: 500; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.name}</div>
+        <div style="font-size: 0.75rem; color: var(--color-text-muted); opacity: 0.6;">
+            ${(() => {
         if (!item.addedAt) return '';
         const d = new Date(item.addedAt);
         const date = d.toLocaleDateString('pt-BR');
         const time = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-        return `${date} <b>${time}</b>`;
+        return `${date} às ${time}`;
       })()}
-            </span>
         </div>
       </div>
-      ${isReadOnly ? `<div style="font-weight: 600;">R$ ${(parseFloat(item.price) * parseFloat(item.quantity)).toFixed(2)}</div>` : actionButtons}
+
+      <!-- Preço e Ações -->
+      <div style="display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0;">
+         <div style="font-weight: 700; font-size: 1.1rem; color: var(--color-text-main);">R$ ${itemTotal}</div>
+         ${actionButtons}
+      </div>
     </div>
   `}).join('') : '<div style="padding: 1rem; text-align: center; color: var(--color-text-muted);">Nenhum item adicionado</div>';
 
