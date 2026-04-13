@@ -74,13 +74,7 @@ export function TabDetail(props = {}) {
           </div>
   `;
 
-  const footerActionsHtml = isReadOnly ? '' : `
-        <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
-          <button id="close-tab-btn" class="btn btn-primary" style="width: 100%; background: var(--color-danger); border: none; box-shadow: none;">
-            Fechar Conta (F5)
-          </button>
-        </div>
-  `;
+  const footerActionsHtml = '';
 
   // Custom Title with Input for Page Component
   const titleHtml = `
@@ -126,25 +120,38 @@ export function TabDetail(props = {}) {
   `;
 
   const actionsHtml = `
-    <div style="display: flex; align-items: center; gap: 1rem;">
-        <div style="text-align: right;">
+    <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; justify-content: flex-end;">
+        <div style="text-align: right; margin-right: 0.5rem;">
             <div style="font-size: 0.8rem; color: var(--color-text-muted);">Total</div>
             <div style="font-size: 1.25rem; font-weight: 700; color: var(--color-primary);">R$ ${parseFloat(tab.total || 0).toFixed(2)}</div>
         </div>
-        ${deleteButtonHtml}
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            ${deleteButtonHtml}
+        </div>
     </div>
   `;
 
+  const closeButtonHtml = isReadOnly ? '' : `
+        <button id="close-tab-btn" class="btn btn-primary" style="background: var(--color-danger); border: none; box-shadow: none; padding: 0.5rem 1rem; font-size: 0.9rem; white-space: nowrap;" title="Atalho: F5">
+            Fechar Comanda
+        </button>
+  `;
+
   const content = `
-      <div style="margin-bottom: var(--spacing-md); display: flex; flex-direction: column; align-items: flex-start;">
-           <button class="btn btn-secondary" id="back-btn" style="padding: 0.5rem 1rem;">
-            ← Voltar
-          </button>
-          ${tab.createdBy ? `
-            <div style="font-size: 0.8rem; color: var(--color-text-muted); margin-top: 0.5rem; padding-left: 0.25rem;">
-               Criado por: <b>${tab.createdBy.name}</b>
-            </div>
-          ` : ''}
+      <div style="margin-bottom: var(--spacing-md); display: flex; justify-content: space-between; align-items: flex-start;">
+          <div style="display: flex; flex-direction: column; align-items: flex-start;">
+               <button class="btn btn-secondary" id="back-btn" style="padding: 0.5rem 1rem;">
+                ← Voltar
+              </button>
+              ${tab.createdBy ? `
+                <div style="font-size: 0.8rem; color: var(--color-text-muted); margin-top: 0.5rem; padding-left: 0.25rem;">
+                   Criado por: <b>${tab.createdBy.name}</b>
+                </div>
+              ` : ''}
+          </div>
+          <div style="margin-top: 0.25rem;">
+              ${closeButtonHtml}
+          </div>
       </div>
 
       <div class="card">
@@ -158,7 +165,6 @@ export function TabDetail(props = {}) {
           </div>
         </div>
 
-        ${footerActionsHtml}
       </div>
 
     <!-- Modals -->
