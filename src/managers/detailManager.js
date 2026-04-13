@@ -303,6 +303,8 @@ export function attachDetailEvents(state, render) {
                 document.querySelector('#item-name').value = product.name;
                 document.querySelector('#item-price').value = product.price;
                 document.querySelector('#item-quantity').value = 1;
+                const obsEl = document.querySelector('#item-observation');
+                if (obsEl) obsEl.value = '';
 
                 modal.classList.remove('hidden');
 
@@ -444,12 +446,15 @@ export function attachDetailEvents(state, render) {
 
             const price = parseFloat(document.querySelector('#item-price').value);
             const quantity = parseInt(document.querySelector('#item-quantity').value);
+            const obsEl = document.querySelector('#item-observation');
+            const observation = obsEl && obsEl.value.trim() !== '' ? obsEl.value.trim() : null;
 
             api.addTabItem(currentTab.id, {
                 productId: state.selectedProduct.id,
                 name: state.selectedProduct.name,
                 price,
-                quantity
+                quantity,
+                observation
             })
                 .then(() => api.getTabById(currentTab.id))
                 .then(updatedTab => {

@@ -40,6 +40,7 @@ export function TabDetail(props = {}) {
       <!-- Nome e Data -->
       <div style="flex: 1; min-width: 0;">
         <div style="font-weight: 500; font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.name}</div>
+        ${item.observation ? `<div style="font-size: 0.85rem; color: var(--color-warning); margin-bottom: 2px;">Obs: ${item.observation}</div>` : ''}
         <div style="font-size: 0.75rem; color: var(--color-text-muted); opacity: 0.6;">
             ${(() => {
         if (!item.addedAt) return '';
@@ -177,7 +178,7 @@ export function TabDetail(props = {}) {
             <label style="display: block; margin-bottom: 0.5rem; color: var(--color-text-muted);">Nome do Produto</label>
             <input type="text" name="name" id="item-name" class="input" required placeholder="Ex: Cerveja" autocomplete="off" aria-label="Nome do Produto">
           </div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
              <div>
                 <label style="display: block; margin-bottom: 0.5rem; color: var(--color-text-muted);">Preço (R$)</label>
                 <input type="number" name="price" id="item-price" step="0.50" class="input" required placeholder="0.00">
@@ -186,6 +187,10 @@ export function TabDetail(props = {}) {
                 <label style="display: block; margin-bottom: 0.5rem; color: var(--color-text-muted);">Qtd</label>
                 <input type="number" name="quantity" id="item-quantity" class="input" value="1" min="1" required>
              </div>
+          </div>
+          <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--color-text-muted);">Observação (Opcional)</label>
+            <input type="text" name="observation" id="item-observation" class="input" placeholder="Ex: Sem gelo, bem passado..." autocomplete="off">
           </div>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
             <button type="button" id="cancel-modal-btn" class="btn btn-secondary">Cancelar</button>

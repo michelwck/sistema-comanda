@@ -198,7 +198,7 @@ export const deleteTab = async (req, res, next) => {
 export const addTabItem = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const { productId, quantity, price, name } = req.body;
+        const { productId, quantity, price, name, observation } = req.body;
 
         if (!productId || !name || !price) {
             return res.status(400).json({
@@ -213,7 +213,8 @@ export const addTabItem = async (req, res, next) => {
                 productId: parseInt(productId),
                 name,
                 price: parseFloat(price),
-                quantity: quantity || 1
+                quantity: quantity || 1,
+                observation
             }
         });
 
